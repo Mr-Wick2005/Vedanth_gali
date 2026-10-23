@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import type {
   ProfileRow,
   SiteSettingsRow,
@@ -28,7 +28,7 @@ export async function getProfile(): Promise<ProfileRow | null> {
   if (!hasSupabaseEnv()) return null
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('profile')
       .select('*')
@@ -54,7 +54,7 @@ export async function getSiteSettings(): Promise<SiteSettingsRow | null> {
   if (!hasSupabaseEnv()) return null
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('site_settings')
       .select('*')
@@ -82,7 +82,7 @@ export async function getProjects(options?: {
   if (!hasSupabaseEnv()) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     let query = supabase
       .from('projects')
       .select('*')
@@ -114,7 +114,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectRow | null>
   if (!hasSupabaseEnv()) return null
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('projects')
       .select('*')
@@ -140,7 +140,7 @@ export async function getExperience(): Promise<ExperienceRow[]> {
   if (!hasSupabaseEnv()) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('experience')
       .select('*')
@@ -166,7 +166,7 @@ export async function getEducation(): Promise<EducationRow[]> {
   if (!hasSupabaseEnv()) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('education')
       .select('*')
@@ -192,7 +192,7 @@ export async function getCertifications(): Promise<CertificationRow[]> {
   if (!hasSupabaseEnv()) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('certifications')
       .select('*')
@@ -218,7 +218,7 @@ export async function getSkillsGrouped(): Promise<Record<string, SkillRow[]>> {
   if (!hasSupabaseEnv()) return {}
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('skills')
       .select('*')
@@ -230,8 +230,9 @@ export async function getSkillsGrouped(): Promise<Record<string, SkillRow[]>> {
       return {}
     }
 
+    const skills = (data ?? []) as SkillRow[]
     const grouped: Record<string, SkillRow[]> = {}
-    for (const skill of data ?? []) {
+    for (const skill of skills) {
       const cat = skill.category
       if (!grouped[cat]) grouped[cat] = []
       grouped[cat].push(skill)
@@ -251,7 +252,7 @@ export async function getSocialLinks(): Promise<SocialLinkRow[]> {
   if (!hasSupabaseEnv()) return []
 
   try {
-    const supabase = await createClient()
+    const supabase = createPublicClient()
     const { data, error } = await supabase
       .from('social_links')
       .select('*')
