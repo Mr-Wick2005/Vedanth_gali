@@ -11,6 +11,7 @@ const certSchema = z.object({
   issuer: z.string().min(1, 'Issuer is required'),
   year: z.number().int(),
   credential_url: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
   sort_order: z.number().int().default(0),
   is_published: z.boolean().default(true),
 })

@@ -77,6 +77,7 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
       issuer: editingItem.issuer || '',
       year: Number(editingItem.year),
       credential_url: editingItem.credential_url || null,
+      image_url: editingItem.image_url || null,
       sort_order: Number(editingItem.sort_order || 0),
       is_published: editingItem.is_published ?? true,
     }
@@ -278,6 +279,22 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
                   placeholder="https://..."
                   className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="text-muted mb-1 block font-mono text-xs">Certificate Background Image URL</label>
+                <input
+                  type="text"
+                  value={editingItem.image_url || ''}
+                  onChange={(e) =>
+                    setEditingItem((prev) => ({ ...prev, image_url: e.target.value }))
+                  }
+                  placeholder="https://... or /certificates/my-cert.png"
+                  className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
+                />
+                <span className="text-muted/60 mt-1 block font-mono text-[10px]">
+                  Displayed as the background of the certificate card with a dark overlay.
+                </span>
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">

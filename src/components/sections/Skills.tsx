@@ -56,32 +56,32 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
   }
 
   return (
-    <section id="stack" className="relative border-t border-white/[0.08] bg-black py-24 sm:py-32">
+    <section id="stack" className="relative border-t border-white/[0.08] bg-black py-16 sm:py-20">
       {/* Background ambient lighting */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/[0.06] blur-[150px]"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/[0.06] blur-[140px]"
       />
 
       <div className="mx-auto max-w-[1320px] px-6">
         {/* Section Header */}
-        <div className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
               [ 06 — TECH STACK & CAPABILITIES ]
             </span>
-            <h2 className="mt-3 font-display text-4xl sm:text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-white">
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-white">
               Engineering <br />
               <span className="text-violet-400">Toolkit.</span>
             </h2>
           </div>
-          <p className="max-w-md font-mono text-xs sm:text-sm text-muted leading-relaxed">
+          <p className="max-w-md font-mono text-xs text-muted leading-relaxed">
             Verified frameworks, languages, and distributed systems actively used to construct production applications.
           </p>
         </div>
 
         {/* Categories Matrix */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => {
             const list = skillsGrouped[category] || []
             const catIcon = CATEGORY_ICONS[category] || 'layers'
@@ -89,26 +89,32 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
             return (
               <div
                 key={category}
-                className="rounded-2xl border border-white/[0.08] bg-[#0b0b1c] p-6 sm:p-7 shadow-[0_15px_40px_rgba(0,0,0,0.6)] transition-all hover:border-violet-500/30"
+                className="rounded-xl border border-white/[0.08] bg-[#0b0b1a] p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all hover:border-violet-500/30"
               >
                 {/* Category Header */}
-                <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
-                  <div className="flex items-center gap-2.5">
-                    <Icon name={catIcon} size={18} className="text-violet-400" />
-                    <h3 className="font-display text-base font-bold uppercase tracking-tight text-white">
+                <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                      <Icon name={catIcon} size={14} colored={false} />
+                    </div>
+                    <h3 className="font-display text-sm font-bold uppercase tracking-tight text-white">
                       {category}
                     </h3>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 font-mono text-[11px] text-muted">
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-muted">
                     {list.length}
                   </span>
                 </div>
 
                 {/* Skill Tiles Grid */}
-                <div className="mt-5 grid grid-cols-2 gap-2.5">
+                <div className="mt-3.5 grid grid-cols-2 gap-2">
                   {list.map((skill) => {
                     const matchedProjects = getUsedInProjects(skill.name)
                     const isHovered = activeTooltip === skill.id
+                    const iconKey =
+                      skill.name.toLowerCase() === 'antigravity'
+                        ? 'antigravity'
+                        : skill.icon_key || skill.name
 
                     return (
                       <div
@@ -117,14 +123,17 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
                         onMouseLeave={() => setActiveTooltip(null)}
                         className="relative"
                       >
-                        <Tilt maxAngle={8} perspective={600} glare={false}>
-                          <div className="group flex items-center gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5 transition-all hover:border-violet-500/40 hover:bg-violet-600/[0.08] hover:shadow-[0_0_20px_rgba(139,92,246,0.18)]">
-                            <Icon
-                              name={skill.icon_key || skill.name}
-                              size={16}
-                              className="text-muted group-hover:text-violet-300 transition-colors shrink-0"
-                            />
-                            <span className="font-mono text-xs text-text-lilac group-hover:text-white transition-colors truncate">
+                        <Tilt maxAngle={6} perspective={600} glare={false}>
+                          <div className="group flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] p-2 transition-all hover:border-violet-500/40 hover:bg-violet-600/[0.09] hover:shadow-[0_0_15px_rgba(139,92,246,0.18)]">
+                            {/* Colorful Brand Icon Badge */}
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-black/50 border border-white/10 group-hover:border-violet-500/30 transition-colors">
+                              <Icon
+                                name={iconKey}
+                                size={14}
+                                colored={true}
+                              />
+                            </div>
+                            <span className="font-mono text-[11px] font-medium text-text-lilac group-hover:text-white transition-colors truncate">
                               {skill.name}
                             </span>
                           </div>
@@ -132,7 +141,7 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
 
                         {/* Interactive Cross-Project Tooltip */}
                         {isHovered && (
-                          <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-48 -translate-x-1/2 rounded-lg border border-violet-500/40 bg-[#0d0d24] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.8)] backdrop-blur-md">
+                          <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-48 -translate-x-1/2 rounded-lg border border-violet-500/40 bg-[#0d0d24] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.85)] backdrop-blur-md">
                             <span className="block font-mono text-[9px] uppercase tracking-wider text-violet-400">
                               CROSS-PROJECT USAGE
                             </span>
