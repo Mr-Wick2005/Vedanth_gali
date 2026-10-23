@@ -1,13 +1,7 @@
 // src/types/database.ts
 // Database types matching the schema in supabase/migrations/20261023000000_initial_schema.sql
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface ProjectMetric {
   label: string

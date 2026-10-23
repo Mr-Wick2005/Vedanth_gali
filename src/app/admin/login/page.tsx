@@ -43,18 +43,18 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-8">
+      <div className="border-border bg-surface w-full max-w-sm rounded-lg border p-8">
         <div className="mb-6">
           <Link
             href="/"
-            className="font-mono text-xs text-muted hover:text-accent transition-colors"
+            className="text-muted hover:text-accent font-mono text-xs transition-colors"
           >
             ← Back to site
           </Link>
-          <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-text">
+          <h1 className="font-display text-text mt-4 text-2xl font-bold tracking-tight">
             Admin Sign In
           </h1>
-          <p className="mt-1 text-xs text-muted">
+          <p className="text-muted mt-1 text-xs">
             Private management portal for Vedanth Gali Portfolio.
           </p>
         </div>
@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-mono text-xs text-muted mb-1.5" htmlFor="email">
+            <label className="text-muted mb-1.5 block font-mono text-xs" htmlFor="email">
               Email
             </label>
             <input
@@ -76,13 +76,13 @@ export default function AdminLoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded border border-border bg-background px-3 py-2 text-sm text-text placeholder-muted/50 focus:border-accent focus:outline-none"
+              className="border-border bg-background text-text placeholder-muted/50 focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
               placeholder="admin@example.com"
             />
           </div>
 
           <div>
-            <label className="block font-mono text-xs text-muted mb-1.5" htmlFor="password">
+            <label className="text-muted mb-1.5 block font-mono text-xs" htmlFor="password">
               Password
             </label>
             <input
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded border border-border bg-background px-3 py-2 text-sm text-text placeholder-muted/50 focus:border-accent focus:outline-none"
+              className="border-border bg-background text-text placeholder-muted/50 focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded border border-accent bg-accent/10 px-4 py-2 font-mono text-xs font-semibold text-accent transition-colors hover:bg-accent hover:text-text disabled:opacity-50"
+            className="border-accent bg-accent/10 text-accent hover:bg-accent hover:text-text w-full rounded border px-4 py-2 font-mono text-xs font-semibold transition-colors disabled:opacity-50"
           >
             {loading ? 'Authenticating...' : 'Sign In'}
           </button>

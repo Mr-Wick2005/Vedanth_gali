@@ -2,11 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/admin/SignOutButton'
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
   // 1. Verify User Session
@@ -26,18 +22,15 @@ export default async function AdminLayout({
   if (adminCheckError || !isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
-        <div className="w-full max-w-md rounded-lg border border-red-500/30 bg-surface p-8 text-center">
+        <div className="bg-surface w-full max-w-md rounded-lg border border-red-500/30 p-8 text-center">
           <div className="mb-4 inline-block rounded-full bg-red-500/10 px-3 py-1 font-mono text-xs text-red-400">
             ACCESS DENIED
           </div>
-          <h1 className="mb-2 font-display text-2xl font-bold text-text">
-            Unauthorized
-          </h1>
-          <p className="mb-6 text-sm text-muted">
-            Signed in as{' '}
-            <span className="font-mono text-text">{user.email}</span>, but your
-            account is not listed in{' '}
-            <code className="rounded bg-surface-hover px-1.5 py-0.5 font-mono text-xs text-accent">
+          <h1 className="font-display text-text mb-2 text-2xl font-bold">Unauthorized</h1>
+          <p className="text-muted mb-6 text-sm">
+            Signed in as <span className="text-text font-mono">{user.email}</span>, but your account
+            is not listed in{' '}
+            <code className="bg-surface-hover text-accent rounded px-1.5 py-0.5 font-mono text-xs">
               admin_users
             </code>
             .
@@ -63,25 +56,25 @@ export default async function AdminLayout({
   ]
 
   return (
-    <div className="min-h-screen bg-background text-text">
+    <div className="bg-background text-text min-h-screen">
       {/* Top Header */}
-      <header className="border-b border-border bg-surface/50 backdrop-blur-sm">
+      <header className="border-border bg-surface/50 border-b backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-3.5">
           <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="font-mono text-xs text-muted hover:text-accent transition-colors"
+              className="text-muted hover:text-accent font-mono text-xs transition-colors"
             >
               ← Public Site
             </Link>
-            <span className="font-mono text-xs text-border">/</span>
-            <span className="font-display text-sm font-bold tracking-tight text-text">
+            <span className="text-border font-mono text-xs">/</span>
+            <span className="font-display text-text text-sm font-bold tracking-tight">
               Portfolio Admin
             </span>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="hidden font-mono text-xs text-muted sm:inline">
+            <span className="text-muted hidden font-mono text-xs sm:inline">
               Signed in as <strong className="text-text">{user.email}</strong>
             </span>
             <SignOutButton />
@@ -89,13 +82,13 @@ export default async function AdminLayout({
         </div>
 
         {/* Subnav */}
-        <div className="border-t border-border/40 bg-surface/30">
+        <div className="border-border/40 bg-surface/30 border-t">
           <div className="mx-auto flex max-w-[1200px] gap-1 overflow-x-auto px-6 py-2">
             {navLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="whitespace-nowrap rounded px-2.5 py-1 font-mono text-xs text-muted transition-colors hover:bg-surface-hover hover:text-text"
+                className="text-muted hover:bg-surface-hover hover:text-text rounded px-2.5 py-1 font-mono text-xs whitespace-nowrap transition-colors"
               >
                 {item.label}
               </Link>

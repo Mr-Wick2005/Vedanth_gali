@@ -2,19 +2,24 @@ import Link from 'next/link'
 
 export default function AdminCertificationsStub() {
   return (
-    <div className="rounded-lg border border-border bg-surface p-8">
-      <div className="mb-6 flex items-center justify-between border-b border-border/50 pb-4">
+    <div className="border-border bg-surface rounded-lg border p-8">
+      <div className="border-border/50 mb-6 flex items-center justify-between border-b pb-4">
         <div>
-          <span className="font-mono text-xs text-accent">CMS SECTION</span>
-          <h1 className="font-display text-2xl font-bold text-text">Certifications</h1>
-          <p className="mt-1 text-xs text-muted">Manage courses, licenses, and credential links.</p>
+          <span className="text-accent font-mono text-xs">CMS SECTION</span>
+          <h1 className="font-display text-text text-2xl font-bold">Certifications</h1>
+          <p className="text-muted mt-1 text-xs">Manage courses, licenses, and credential links.</p>
         </div>
-        <Link href="/admin" className="rounded border border-border bg-background px-3 py-1.5 font-mono text-xs text-muted hover:text-text">
+        <Link
+          href="/admin"
+          className="border-border bg-background text-muted hover:text-text rounded border px-3 py-1.5 font-mono text-xs"
+        >
           ← Dashboard
         </Link>
       </div>
-      <div className="rounded border border-dashed border-border/60 bg-background/50 p-12 text-center">
-        <span className="font-mono text-xs text-muted">STUB: Certifications CRUD manager will be built in Phase 5</span>
+      <div className="border-border/60 bg-background/50 rounded border border-dashed p-12 text-center">
+        <span className="text-muted font-mono text-xs">
+          STUB: Certifications CRUD manager will be built in Phase 5
+        </span>
       </div>
     </div>
   )

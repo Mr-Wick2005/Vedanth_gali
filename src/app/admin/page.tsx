@@ -80,13 +80,13 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       {/* Welcome Banner */}
-      <div className="mb-8 flex flex-col justify-between gap-4 rounded-lg border border-border bg-surface p-6 sm:flex-row sm:items-center">
+      <div className="border-border bg-surface mb-8 flex flex-col justify-between gap-4 rounded-lg border p-6 sm:flex-row sm:items-center">
         <div>
-          <span className="font-mono text-xs text-accent">MANAGEMENT DASHBOARD</span>
-          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-text">
+          <span className="text-accent font-mono text-xs">MANAGEMENT DASHBOARD</span>
+          <h1 className="font-display text-text mt-1 text-2xl font-bold tracking-tight">
             Signed in as {user?.email}
           </h1>
-          <p className="mt-1 text-xs text-muted">
+          <p className="text-muted mt-1 text-xs">
             All content updates directly revalidate affected public routes.
           </p>
         </div>
@@ -101,20 +101,16 @@ export default async function AdminDashboardPage() {
           <Link
             key={section.href}
             href={section.href}
-            className="group rounded-lg border border-border bg-surface p-5 transition-all hover:border-accent hover:bg-surface-hover hover:-translate-y-0.5"
+            className="group border-border bg-surface hover:border-accent hover:bg-surface-hover rounded-lg border p-5 transition-all hover:-translate-y-0.5"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-base font-bold text-text group-hover:text-accent transition-colors">
+              <h2 className="font-display text-text group-hover:text-accent text-base font-bold transition-colors">
                 {section.title}
               </h2>
-              <span className="font-mono text-xs text-muted">
-                {section.count}
-              </span>
+              <span className="text-muted font-mono text-xs">{section.count}</span>
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted">
-              {section.description}
-            </p>
-            <div className="mt-4 flex items-center font-mono text-xs text-accent">
+            <p className="text-muted mt-2 text-xs leading-relaxed">{section.description}</p>
+            <div className="text-accent mt-4 flex items-center font-mono text-xs">
               <span>Manage →</span>
             </div>
           </Link>

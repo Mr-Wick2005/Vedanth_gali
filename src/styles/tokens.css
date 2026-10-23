@@ -1,19 +1,19 @@
 :root {
   /* Colors - Single accent violet palette */
-  --color-background: #06060F;
-  --color-surface: #0D0D1F;
-  --color-surface-hover: #14142B;
+  --color-background: #06060f;
+  --color-surface: #0d0d1f;
+  --color-surface-hover: #14142b;
   --color-border: rgba(139, 92, 246, 0.22);
   --color-border-hover: rgba(139, 92, 246, 0.45);
-  --color-text: #F2F2FA;
-  --color-muted: #9A9AB5;
-  --color-accent: #8B5CF6;
+  --color-text: #f2f2fa;
+  --color-muted: #9a9ab5;
+  --color-accent: #8b5cf6;
   --color-accent-subtle: rgba(139, 92, 246, 0.12);
 
   /* Font Slots (set by next/font in layout) */
-  --font-display: var(--font-display-slot, "Unbounded", system-ui, -apple-system, sans-serif);
-  --font-body: var(--font-body-slot, "Geist Sans", system-ui, -apple-system, sans-serif);
-  --font-mono: var(--font-mono-slot, "Geist Mono", ui-monospace, SFMono-Regular, monospace);
+  --font-display: var(--font-display-slot, 'Unbounded', system-ui, -apple-system, sans-serif);
+  --font-body: var(--font-body-slot, 'Geist Sans', system-ui, -apple-system, sans-serif);
+  --font-mono: var(--font-mono-slot, 'Geist Mono', ui-monospace, SFMono-Regular, monospace);
 
   /* Fluid Type Scale using clamp() */
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
