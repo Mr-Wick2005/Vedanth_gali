@@ -4,24 +4,29 @@ import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
+// Precompute deterministic ambient particle points (pure, module-level constant)
+const PARTICLE_COUNT = 50
+const PARTICLE_POSITIONS = (() => {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const theta = (i / PARTICLE_COUNT) * Math.PI * 2 * 3.618
+    const radius = 2.0 + ((i * 17) % 15) * 0.1
+    positions[i * 3] = Math.cos(theta) * radius
+    positions[i * 3 + 1] = (((i * 23) % 20) - 10) * 0.1
+    positions[i * 3 + 2] = Math.sin(theta) * radius
+  }
+  return positions
+})()
+
 export function HeroRingScene() {
   const meshRef = useRef<THREE.Mesh>(null)
   const particlesRef = useRef<THREE.Points>(null)
   const { pointer } = useThree()
 
-  // Generate 50 ambient particle points
+  // Generate ambient particle geometry from deterministic positions
   const particleGeo = useMemo(() => {
-    const count = 50
-    const positions = new Float32Array(count * 3)
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2
-      const radius = 2.0 + Math.random() * 1.5
-      positions[i * 3] = Math.cos(theta) * radius
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 2.0
-      positions[i * 3 + 2] = Math.sin(theta) * radius
-    }
     const geo = new THREE.BufferGeometry()
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geo.setAttribute('position', new THREE.BufferAttribute(PARTICLE_POSITIONS, 3))
     return geo
   }, [])
 
@@ -50,40 +55,30 @@ export function HeroRingScene() {
   })
 
   return (
-    <>
-      {/* 3D Scene Lighting: Key Violet light + Subtle Cyan/Blue specular accent */}
+    <group>
+      {/* Dynamic directional lighting inside the 3D scene */}
       <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 5, 5]} intensity={1.5} color="#8B5CF6" />
-      <pointLight position={[-5, -5, -3]} intensity={1.8} color="#06B6D4" />
+      <directionalLight position={[5, 5, 5]} intensity={1.5} color="#ffffff" />
+      <pointLight position={[-4, -4, 2]} intensity={2.0} color="#8B5CF6" />
+      <pointLight position={[3, 3, -2]} intensity={1.5} color="#06b6d4" />
 
-      {/* Procedural Metallic Torus Ring */}
-      <mesh ref={meshRef}>
-        <torusGeometry args={[1.8, 0.12, 32, 100]} />
+      {/* Main Procedural Torus Ring */}
+      <mesh ref={meshRef} position={[0, 0, 0]}>
+        <torusGeometry args={[1.5, 0.12, 32, 100]} />
         <meshStandardMaterial
           color="#8B5CF6"
-          roughness={0.25}
+          emissive="#6D28D9"
+          emissiveIntensity={0.6}
+          roughness={0.2}
           metalness={0.85}
-          emissive="#4C1D95"
-          emissiveIntensity={0.3}
+          wireframe={false}
         />
       </mesh>
 
-      {/* Secondary Thin Inner Wireframe Ring */}
-      <mesh rotation={[Math.PI / 4, 0, 0]}>
-        <torusGeometry args={[1.4, 0.02, 16, 64]} />
-        <meshBasicMaterial color="#A78BFA" wireframe transparent opacity={0.4} />
-      </mesh>
-
-      {/* Floating Particle Field */}
+      {/* Ambient Particle Dust */}
       <points ref={particlesRef} geometry={particleGeo}>
-        <pointsMaterial
-          size={0.035}
-          color="#C4B5FD"
-          transparent
-          opacity={0.7}
-          sizeAttenuation
-        />
+        <pointsMaterial size={0.035} color="#A78BFA" transparent opacity={0.7} sizeAttenuation />
       </points>
-    </>
+    </group>
   )
 }

@@ -39,6 +39,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       profile: {
         Row: {
@@ -86,6 +87,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       site_settings: {
         Row: {
@@ -118,6 +120,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -189,6 +192,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       experience: {
         Row: {
@@ -242,6 +246,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       education: {
         Row: {
@@ -289,6 +294,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       certifications: {
         Row: {
@@ -330,6 +336,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -365,6 +372,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       social_links: {
         Row: {
@@ -397,6 +405,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -407,6 +416,12 @@ export interface Database {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

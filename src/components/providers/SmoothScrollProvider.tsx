@@ -8,9 +8,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     // Respect prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) return
 
     const lenis = new Lenis({

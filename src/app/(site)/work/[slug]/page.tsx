@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getProjectBySlug, getProjects } from '@/lib/content'
@@ -9,6 +10,24 @@ interface WorkPageProps {
 export async function generateStaticParams() {
   const projects = await getProjects()
   return projects.map((p) => ({ slug: p.slug }))
+}
+
+export async function generateMetadata({ params }: WorkPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const project = await getProjectBySlug(slug)
+  if (!project) return { title: 'Project Not Found' }
+
+  return {
+    title: `${project.title} — Case Study | Vedanth Gali`,
+    description: project.summary,
+    openGraph: {
+      title: `${project.title} — Case Study | Vedanth Gali`,
+      description: project.summary,
+      images: project.cover_image_url
+        ? [{ url: project.cover_image_url, alt: project.cover_image_alt || project.title }]
+        : [],
+    },
+  }
 }
 
 export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {

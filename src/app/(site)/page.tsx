@@ -29,16 +29,16 @@ export default async function HomePage() {
   if (!isConfigured) {
     return (
       <main className="flex min-h-screen items-center justify-center p-6">
-        <div className="w-full max-w-md rounded-lg border border-border bg-surface p-8 text-center">
-          <div className="mb-4 inline-block rounded-full bg-accent/10 px-3 py-1 font-mono text-xs text-accent">
+        <div className="border-border bg-surface w-full max-w-md rounded-lg border p-8 text-center">
+          <div className="bg-accent/10 text-accent mb-4 inline-block rounded-full px-3 py-1 font-mono text-xs">
             SETUP REQUIRED
           </div>
-          <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-text">
+          <h1 className="font-display text-text mb-2 text-2xl font-bold tracking-tight">
             Environment Setup
           </h1>
-          <p className="mb-6 text-sm text-muted">
+          <p className="text-muted mb-6 text-sm">
             Supabase environment variables are missing. Please configure{' '}
-            <code className="rounded bg-surface-hover px-1.5 py-0.5 font-mono text-xs text-accent">
+            <code className="bg-surface-hover text-accent rounded px-1.5 py-0.5 font-mono text-xs">
               .env.local
             </code>{' '}
             with your URL and publishable key.
@@ -48,28 +48,18 @@ export default async function HomePage() {
     )
   }
 
-  const [
-    profile,
-    projects,
-    experience,
-    education,
-    certifications,
-    skillsGrouped,
-    socialLinks,
-  ] = await Promise.all([
-    getProfile(),
-    getProjects(),
-    getExperience(),
-    getEducation(),
-    getCertifications(),
-    getSkillsGrouped(),
-    getSocialLinks(),
-  ])
+  const [profile, projects, experience, education, certifications, skillsGrouped, socialLinks] =
+    await Promise.all([
+      getProfile(),
+      getProjects(),
+      getExperience(),
+      getEducation(),
+      getCertifications(),
+      getSkillsGrouped(),
+      getSocialLinks(),
+    ])
 
-  const totalSkills = Object.values(skillsGrouped).reduce(
-    (acc, list) => acc + list.length,
-    0,
-  )
+  const totalSkills = Object.values(skillsGrouped).reduce((acc, list) => acc + list.length, 0)
 
   const stats = {
     projectsCount: projects.length,
@@ -78,9 +68,28 @@ export default async function HomePage() {
     certsCount: certifications.length,
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: profile?.name || 'Vedanth Gali',
+    jobTitle: profile?.headline || 'Frontend & Full-Stack Developer',
+    description: profile?.short_bio || 'Developer building scalable web platforms.',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: profile?.location || 'Mumbai',
+      addressCountry: 'IN',
+    },
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://vedanthgali.dev',
+    sameAs: socialLinks.map((s) => s.url).filter((u) => u.startsWith('http')),
+  }
+
   return (
     <SmoothScrollProvider>
-      <div className="min-h-screen bg-background text-text">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="bg-background text-text min-h-screen">
         {/* Sticky Navigation */}
         <Navigation resumeUrl={profile?.resume_url} />
 

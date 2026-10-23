@@ -1,31 +1,43 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useSyncExternalStore } from 'react'
 import { HeroRingScene } from './HeroRingScene'
 
-export default function HeroRingCanvas() {
-  const [reducedMotion, setReducedMotion] = useState(false)
+function subscribeReducedMotion(callback: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+  media.addEventListener('change', callback)
+  return () => media.removeEventListener('change', callback)
+}
 
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setReducedMotion(media.matches)
-    const listener = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
-    media.addEventListener('change', listener)
-    return () => media.removeEventListener('change', listener)
-  }, [])
+function getReducedMotionSnapshot() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function getReducedMotionServerSnapshot() {
+  return false
+}
+
+export default function HeroRingCanvas() {
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotionSnapshot,
+    getReducedMotionServerSnapshot,
+  )
 
   if (reducedMotion) {
     return (
-      <div className="absolute inset-0 rounded-full border border-accent/40 shadow-[0_0_40px_rgba(139,92,246,0.3)]" />
+      <div className="border-accent/40 absolute inset-0 rounded-full border shadow-[0_0_40px_rgba(139,92,246,0.3)]" />
     )
   }
 
   return (
-    <div className="absolute inset-0 h-full w-full pointer-events-auto">
+    <div className="pointer-events-auto absolute inset-0 h-full w-full">
       <Suspense
         fallback={
-          <div className="h-full w-full rounded-full border border-accent/20 animate-pulse" />
+          <div className="border-accent/20 h-full w-full animate-pulse rounded-full border" />
         }
       >
         <Canvas

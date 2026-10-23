@@ -1,16 +1,6 @@
-import dynamic from 'next/dynamic'
 import type { ProfileRow, SocialLinkRow } from '@/types/database'
 import { SectionReveal } from '@/components/ui/SectionReveal'
-
-const HeroRingCanvas = dynamic(
-  () => import('@/components/three/HeroRingCanvas'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="absolute inset-0 rounded-full border border-accent/30 animate-pulse" />
-    ),
-  },
-)
+import { HeroRingWrapper } from '@/components/three/HeroRingWrapper'
 
 interface HeroProps {
   profile: ProfileRow | null
@@ -20,7 +10,8 @@ interface HeroProps {
 export function Hero({ profile, socialLinks }: HeroProps) {
   const firstName = profile?.name ? profile.name.split(' ')[0] : 'Vedanth'
   const lastName = profile?.name ? profile.name.split(' ').slice(1).join(' ') : 'Gali'
-  const headline = profile?.headline || 'Frontend & Full-Stack developer · Computer Engineering student'
+  const headline =
+    profile?.headline || 'Frontend & Full-Stack developer · Computer Engineering student'
   const availabilityText = profile?.availability_text || 'Open to work · Frontend / Full-Stack'
 
   return (
@@ -28,7 +19,7 @@ export function Hero({ profile, socialLinks }: HeroProps) {
       {/* Soft background radial wash behind hero (allowed glow exception) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/4 right-0 -z-10 h-96 w-96 rounded-full bg-accent/15 blur-[120px] md:h-[500px] md:w-[500px]"
+        className="bg-accent/15 pointer-events-none absolute top-1/4 right-0 -z-10 h-96 w-96 rounded-full blur-[120px] md:h-[500px] md:w-[500px]"
       />
 
       <div className="mx-auto max-w-[1200px] px-6">
@@ -37,25 +28,25 @@ export function Hero({ profile, socialLinks }: HeroProps) {
           <div className="lg:col-span-7">
             <SectionReveal>
               {/* Availability Pill */}
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1.5 font-mono text-xs text-accent">
+              <div className="border-accent/30 bg-accent/10 text-accent mb-6 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-mono text-xs">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                  <span className="bg-accent absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                  <span className="bg-accent relative inline-flex h-2 w-2 rounded-full" />
                 </span>
                 <span>{availabilityText}</span>
               </div>
 
               {/* Two-tone Display Name */}
-              <h1 className="font-display text-4xl font-extrabold tracking-tight text-text sm:text-6xl md:text-7xl">
+              <h1 className="font-display text-text text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl">
                 <span>{firstName} </span>
                 <span className="text-accent">{lastName}</span>
               </h1>
 
               {/* Role & Value Statement */}
-              <p className="mt-4 font-mono text-xs uppercase tracking-wider text-muted sm:text-sm">
+              <p className="text-muted mt-4 font-mono text-xs tracking-wider uppercase sm:text-sm">
                 {headline}
               </p>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-text/90 sm:text-lg">
+              <p className="text-text/90 mt-4 max-w-xl text-base leading-relaxed sm:text-lg">
                 I build web platforms and lead tech events, from first sketch to deployment.
               </p>
 
@@ -63,7 +54,7 @@ export function Hero({ profile, socialLinks }: HeroProps) {
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <a
                   href="#work"
-                  className="rounded border border-accent bg-accent px-5 py-2.5 font-mono text-xs font-semibold text-background transition-all hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/20"
+                  className="border-accent bg-accent text-background hover:bg-accent/90 hover:shadow-accent/20 rounded border px-5 py-2.5 font-mono text-xs font-semibold transition-all hover:shadow-lg"
                 >
                   View my work ↓
                 </a>
@@ -71,22 +62,22 @@ export function Hero({ profile, socialLinks }: HeroProps) {
                   href={profile?.resume_url || '#contact'}
                   target={profile?.resume_url ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="rounded border border-border bg-surface px-5 py-2.5 font-mono text-xs font-medium text-text transition-all hover:border-accent hover:bg-surface-hover"
+                  className="border-border bg-surface text-text hover:border-accent hover:bg-surface-hover rounded border px-5 py-2.5 font-mono text-xs font-medium transition-all"
                 >
                   Download résumé ↗
                 </a>
               </div>
 
               {/* Social Links Row */}
-              <div className="mt-10 flex flex-wrap items-center gap-5 border-t border-border/40 pt-6">
-                <span className="font-mono text-xs text-muted">Connect:</span>
+              <div className="border-border/40 mt-10 flex flex-wrap items-center gap-5 border-t pt-6">
+                <span className="text-muted font-mono text-xs">Connect:</span>
                 {socialLinks.map((link) => (
                   <a
                     key={link.id}
                     href={link.url}
                     target={link.url.startsWith('http') ? '_blank' : undefined}
                     rel="noopener noreferrer"
-                    className="font-mono text-xs text-muted transition-colors hover:text-accent"
+                    className="text-muted hover:text-accent font-mono text-xs transition-colors"
                   >
                     {link.label}
                   </a>
@@ -99,10 +90,10 @@ export function Hero({ profile, socialLinks }: HeroProps) {
           <div className="flex justify-center lg:col-span-5 lg:justify-end">
             <div className="relative flex h-80 w-80 items-center justify-center sm:h-96 sm:w-96">
               {/* Procedural 3D WebGL Torus Ring Scene */}
-              <HeroRingCanvas />
+              <HeroRingWrapper />
 
               {/* Portrait Visual Container centered in the ring */}
-              <div className="relative z-10 flex h-60 w-60 sm:h-72 sm:w-72 flex-col items-center justify-center overflow-hidden rounded-full border border-border/80 bg-surface shadow-2xl">
+              <div className="border-border/80 bg-surface relative z-10 flex h-60 w-60 flex-col items-center justify-center overflow-hidden rounded-full border shadow-2xl sm:h-72 sm:w-72">
                 {profile?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -112,13 +103,11 @@ export function Hero({ profile, socialLinks }: HeroProps) {
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center p-6 text-center select-none">
-                    <span className="font-display text-4xl sm:text-5xl font-extrabold text-accent">
+                    <span className="font-display text-accent text-4xl font-extrabold sm:text-5xl">
                       VG
                     </span>
-                    <span className="mt-2 font-mono text-xs text-muted">
-                      Mumbai, India
-                    </span>
-                    <span className="mt-1 font-mono text-[10px] text-accent/70">
+                    <span className="text-muted mt-2 font-mono text-xs">Mumbai, India</span>
+                    <span className="text-accent/70 mt-1 font-mono text-[10px]">
                       [PORTRAIT CUTOUT PLACEHOLDER]
                     </span>
                   </div>

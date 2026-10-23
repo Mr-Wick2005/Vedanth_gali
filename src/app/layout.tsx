@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} dark`}
     >
-      <body className="min-h-screen bg-background text-text antialiased selection:bg-accent selection:text-text">
+      <body className="bg-background text-text selection:bg-accent selection:text-text min-h-screen antialiased">
         {children}
       </body>
     </html>

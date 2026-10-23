@@ -65,7 +65,7 @@ export default async function AdminDashboardPage() {
     },
     {
       title: 'Social Links',
-      description: 'GitHub, LinkedIn, Email, and public Phone number.',
+      description: 'GitHub, LinkedIn, Email, and public contact links.',
       href: '/admin/socials',
       count: `${socialsCount ?? 0} items`,
     },

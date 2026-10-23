@@ -6,17 +6,17 @@ interface CertificationsProps {
 
 export function Certifications({ certifications }: CertificationsProps) {
   return (
-    <section id="certifications" className="py-24 border-t border-border/40">
+    <section id="certifications" className="border-border/40 border-t py-24">
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Section Header */}
         <div className="mb-12">
-          <span className="font-mono text-xs uppercase tracking-widest text-accent">
+          <span className="text-accent font-mono text-xs tracking-widest uppercase">
             05 — CERTIFICATIONS
           </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-text sm:text-4xl">
+          <h2 className="font-display text-text mt-2 text-2xl font-bold tracking-tight sm:text-4xl">
             Training & Credentials
           </h2>
-          <p className="mt-2 text-xs font-mono text-muted">
+          <p className="text-muted mt-2 font-mono text-xs">
             Specialized engineering coursework, database certifications, and simulations.
           </p>
         </div>
@@ -26,14 +26,14 @@ export function Certifications({ certifications }: CertificationsProps) {
           {certifications.map((cert) => (
             <div
               key={cert.id}
-              className="flex flex-col justify-between rounded-lg border border-border bg-surface p-6 transition-colors hover:border-border-hover"
+              className="border-border bg-surface hover:border-border-hover flex flex-col justify-between rounded-lg border p-6 transition-colors"
             >
               <div>
-                <div className="flex items-center justify-between font-mono text-xs text-muted">
+                <div className="text-muted flex items-center justify-between font-mono text-xs">
                   <span className="text-accent">{cert.issuer}</span>
                   <span>{cert.year}</span>
                 </div>
-                <h3 className="mt-2.5 font-display text-base font-bold text-text sm:text-lg">
+                <h3 className="font-display text-text mt-2.5 text-base font-bold sm:text-lg">
                   {cert.title}
                 </h3>
               </div>
@@ -43,12 +43,12 @@ export function Certifications({ certifications }: CertificationsProps) {
                   href={cert.credential_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1 font-mono text-xs text-accent hover:underline"
+                  className="text-accent mt-4 inline-flex items-center gap-1 font-mono text-xs hover:underline"
                 >
                   Verify Credential ↗
                 </a>
               ) : (
-                <span className="mt-4 font-mono text-[11px] text-muted/60">
+                <span className="text-muted/60 mt-4 font-mono text-[11px]">
                   Verified Completion
                 </span>
               )}

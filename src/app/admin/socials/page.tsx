@@ -1,28 +1,36 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { SocialsManager } from '@/components/admin/SocialsManager'
+import type { SocialLinkRow } from '@/types/database'
 
-export default function AdminSocialsStub() {
+export const dynamic = 'force-dynamic'
+
+export default async function AdminSocialsPage() {
+  const supabase = await createClient()
+  const { data: socials } = await supabase
+    .from('social_links')
+    .select('*')
+    .order('sort_order', { ascending: true })
+
   return (
-    <div className="border-border bg-surface rounded-lg border p-8">
-      <div className="border-border/50 mb-6 flex items-center justify-between border-b pb-4">
+    <div className="space-y-6">
+      <div className="border-border/50 flex items-center justify-between border-b pb-4">
         <div>
           <span className="text-accent font-mono text-xs">CMS SECTION</span>
-          <h1 className="font-display text-text text-2xl font-bold">Social Links & Contact</h1>
+          <h1 className="font-display text-text text-2xl font-bold">Social & Contact Links</h1>
           <p className="text-muted mt-1 text-xs">
-            Manage GitHub, LinkedIn, Email, and public Phone number.
+            Manage links to GitHub, LinkedIn, email, and other contact channels.
           </p>
         </div>
         <Link
           href="/admin"
-          className="border-border bg-background text-muted hover:text-text rounded border px-3 py-1.5 font-mono text-xs"
+          className="border-border bg-background text-muted hover:text-text rounded border px-3 py-1.5 font-mono text-xs transition-colors"
         >
           ← Dashboard
         </Link>
       </div>
-      <div className="border-border/60 bg-background/50 rounded border border-dashed p-12 text-center">
-        <span className="text-muted font-mono text-xs">
-          STUB: Social links and contact methods editor will be built in Phase 5
-        </span>
-      </div>
+
+      <SocialsManager initialSocials={(socials as SocialLinkRow[]) || []} />
     </div>
   )
 }

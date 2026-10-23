@@ -1,28 +1,36 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { EducationManager } from '@/components/admin/EducationManager'
+import type { EducationRow } from '@/types/database'
 
-export default function AdminEducationStub() {
+export const dynamic = 'force-dynamic'
+
+export default async function AdminEducationPage() {
+  const supabase = await createClient()
+  const { data: education } = await supabase
+    .from('education')
+    .select('*')
+    .order('sort_order', { ascending: true })
+
   return (
-    <div className="border-border bg-surface rounded-lg border p-8">
-      <div className="border-border/50 mb-6 flex items-center justify-between border-b pb-4">
+    <div className="space-y-6">
+      <div className="border-border/50 flex items-center justify-between border-b pb-4">
         <div>
           <span className="text-accent font-mono text-xs">CMS SECTION</span>
-          <h1 className="font-display text-text text-2xl font-bold">Education</h1>
+          <h1 className="font-display text-text text-2xl font-bold">Education Records</h1>
           <p className="text-muted mt-1 text-xs">
-            Manage university degree, institution, and years.
+            Manage degrees, colleges, university qualifications, and graduation status.
           </p>
         </div>
         <Link
           href="/admin"
-          className="border-border bg-background text-muted hover:text-text rounded border px-3 py-1.5 font-mono text-xs"
+          className="border-border bg-background text-muted hover:text-text rounded border px-3 py-1.5 font-mono text-xs transition-colors"
         >
           ← Dashboard
         </Link>
       </div>
-      <div className="border-border/60 bg-background/50 rounded border border-dashed p-12 text-center">
-        <span className="text-muted font-mono text-xs">
-          STUB: Education records manager will be built in Phase 5
-        </span>
-      </div>
+
+      <EducationManager initialEducation={(education as EducationRow[]) || []} />
     </div>
   )
 }

@@ -26,17 +26,17 @@ export function Skills({ skillsGrouped }: SkillsProps) {
   })
 
   return (
-    <section id="skills" className="py-24 border-t border-border/40">
+    <section id="skills" className="border-border/40 border-t py-24">
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Section Header */}
         <div className="mb-12">
-          <span className="font-mono text-xs uppercase tracking-widest text-accent">
+          <span className="text-accent font-mono text-xs tracking-widest uppercase">
             04 — SKILLS
           </span>
-          <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-text sm:text-4xl">
+          <h2 className="font-display text-text mt-2 text-2xl font-bold tracking-tight sm:text-4xl">
             Technical Capabilities
           </h2>
-          <p className="mt-2 text-xs font-mono text-muted">
+          <p className="text-muted mt-2 font-mono text-xs">
             Technologies and frameworks actively used to architect and ship software.
           </p>
         </div>
@@ -49,22 +49,18 @@ export function Skills({ skillsGrouped }: SkillsProps) {
             return (
               <div
                 key={category}
-                className="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-border-hover"
+                className="border-border bg-surface hover:border-border-hover rounded-lg border p-6 transition-colors"
               >
-                <div className="flex items-center justify-between border-b border-border/50 pb-3">
-                  <h3 className="font-display text-base font-bold text-text">
-                    {category}
-                  </h3>
-                  <span className="font-mono text-xs text-muted">
-                    {list.length}
-                  </span>
+                <div className="border-border/50 flex items-center justify-between border-b pb-3">
+                  <h3 className="font-display text-text text-base font-bold">{category}</h3>
+                  <span className="text-muted font-mono text-xs">{list.length}</span>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {list.map((skill) => (
                     <span
                       key={skill.id}
-                      className="rounded border border-border/80 bg-background/60 px-2.5 py-1 font-mono text-xs text-text/90 transition-colors hover:border-accent hover:text-accent"
+                      className="border-border/80 bg-background/60 text-text/90 hover:border-accent hover:text-accent rounded border px-2.5 py-1 font-mono text-xs transition-colors"
                     >
                       {skill.name}
                     </span>
