@@ -4,28 +4,34 @@ import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-// Precompute deterministic ambient particle points (pure, module-level constant)
-const PARTICLE_COUNT = 60
+// Precompute 1000 deterministic glowing particles (pure module-level constant)
+const PARTICLE_COUNT = 900
 const PARTICLE_POSITIONS = (() => {
   const positions = new Float32Array(PARTICLE_COUNT * 3)
   for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 * 3.1415
-    const dist = 1.9 + ((i * 13) % 20) * 0.035
-    positions[i * 3] = Math.cos(angle) * dist
-    positions[i * 3 + 1] = Math.sin(angle) * dist
-    positions[i * 3 + 2] = (((i * 17) % 21) - 10) * 0.04
+    // Spiral and torus distribution around the ring
+    const u = (i / PARTICLE_COUNT) * Math.PI * 2 * 6.0
+    const radius = 1.8 + (((i * 19) % 37) / 37) * 0.9
+    const theta = (i / PARTICLE_COUNT) * Math.PI * 2
+    positions[i * 3] = Math.cos(theta) * radius + (Math.sin(u) * 0.15)
+    positions[i * 3 + 1] = Math.sin(theta) * radius + (Math.cos(u) * 0.15)
+    positions[i * 3 + 2] = (((i * 23) % 41) - 20) * 0.035
   }
   return positions
 })()
 
 export function HeroRingScene() {
+  const groupRef = useRef<THREE.Group>(null)
   const primaryRingRef = useRef<THREE.Mesh>(null)
   const secondaryRingRef = useRef<THREE.Mesh>(null)
   const particlesRef = useRef<THREE.Points>(null)
-  const groupRef = useRef<THREE.Group>(null)
-  const { pointer } = useThree()
+  const shard1Ref = useRef<THREE.Mesh>(null)
+  const shard2Ref = useRef<THREE.Mesh>(null)
+  const shard3Ref = useRef<THREE.Mesh>(null)
 
-  // Generate ambient particle geometry from deterministic positions
+  const { pointer, camera } = useThree()
+
+  // Particle geometry
   const particleGeo = useMemo(() => {
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.BufferAttribute(PARTICLE_POSITIONS, 3))
@@ -33,90 +39,110 @@ export function HeroRingScene() {
   }, [])
 
   useFrame((_, delta) => {
-    // Gentle cinematic Z-axis rotation facing camera
+    // 1. Ring rotations
     if (primaryRingRef.current) {
-      primaryRingRef.current.rotation.z += delta * 0.12
+      primaryRingRef.current.rotation.z += delta * 0.14
     }
-
     if (secondaryRingRef.current) {
-      secondaryRingRef.current.rotation.z -= delta * 0.08
+      secondaryRingRef.current.rotation.z -= delta * 0.1
     }
-
     if (particlesRef.current) {
-      particlesRef.current.rotation.z += delta * 0.05
+      particlesRef.current.rotation.z += delta * 0.04
     }
 
-    // Subtle 3D parallax tilt based on mouse pointer
-    if (groupRef.current) {
-      groupRef.current.rotation.x = THREE.MathUtils.lerp(
-        groupRef.current.rotation.x,
-        pointer.y * -0.08,
-        0.05,
-      )
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(
-        groupRef.current.rotation.y,
-        pointer.x * 0.08,
-        0.05,
-      )
+    // 2. Low-poly shards orbital drift
+    if (shard1Ref.current) {
+      shard1Ref.current.rotation.x += delta * 0.6
+      shard1Ref.current.rotation.y += delta * 0.8
     }
+    if (shard2Ref.current) {
+      shard2Ref.current.rotation.y += delta * 0.5
+      shard2Ref.current.rotation.z += delta * 0.7
+    }
+    if (shard3Ref.current) {
+      shard3Ref.current.rotation.x += delta * 0.4
+      shard3Ref.current.rotation.z += delta * 0.5
+    }
+
+    // 3. Pointer tilt (ring up to 10 degrees)
+    if (groupRef.current) {
+      const targetRotX = pointer.y * -0.17 // ~10 deg
+      const targetRotY = pointer.x * 0.17
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.06)
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.06)
+    }
+
+    // 4. Subtle camera dolly on pointer depth
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, 5.2 - Math.abs(pointer.x) * 0.3, 0.05)
   })
 
   return (
     <group ref={groupRef}>
-      {/* High-contrast cinematic dual-tone lighting */}
-      <ambientLight intensity={0.2} />
-      {/* Electric Cyan point light on the left */}
-      <pointLight position={[-3, 1, 2]} intensity={3.5} color="#00e5ff" distance={8} />
-      {/* Neon Violet point light on the right */}
-      <pointLight position={[3, -1, 2]} intensity={4.0} color="#8b5cf6" distance={8} />
-      {/* Backlight fill for depth */}
-      <pointLight position={[0, 2, -1.5]} intensity={2.0} color="#6366f1" distance={6} />
+      {/* Lighting setup: high contrast neon blue & violet */}
+      <ambientLight intensity={0.25} />
+      <pointLight position={[-3, 1.5, 2]} intensity={4.5} color="#00e5ff" distance={9} />
+      <pointLight position={[3, -1.5, 2]} intensity={5.0} color="#8b5cf6" distance={9} />
+      <pointLight position={[0, 2, -1.5]} intensity={2.5} color="#a78bfa" distance={7} />
 
       {/* Primary Electric Neon Energy Ring */}
       <mesh ref={primaryRingRef} position={[0, 0, 0]}>
-        <torusGeometry args={[2.0, 0.038, 32, 128]} />
+        <torusGeometry args={[2.05, 0.04, 32, 128]} />
         <meshStandardMaterial
           color="#8b5cf6"
-          emissive="#6d28d9"
-          emissiveIntensity={0.8}
+          emissive="#7c3aed"
+          emissiveIntensity={1.2}
           roughness={0.15}
           metalness={0.9}
         />
       </mesh>
 
-      {/* Secondary Outer Thin Orbit Ring */}
-      <mesh ref={secondaryRingRef} position={[0, 0, -0.05]}>
-        <torusGeometry args={[2.28, 0.012, 16, 128]} />
+      {/* Secondary Outer Thin Cyan Orbit Ring */}
+      <mesh ref={secondaryRingRef} position={[0, 0, -0.06]}>
+        <torusGeometry args={[2.35, 0.015, 16, 128]} />
         <meshStandardMaterial
-          color="#00e5ff"
-          emissive="#00b4d8"
-          emissiveIntensity={0.9}
+          color="#38bdf8"
+          emissive="#0284c7"
+          emissiveIntensity={1.1}
           roughness={0.2}
-          metalness={0.85}
-        />
-      </mesh>
-
-      {/* Inner Thin Halo Ring */}
-      <mesh position={[0, 0, -0.02]}>
-        <torusGeometry args={[1.78, 0.008, 16, 128]} />
-        <meshStandardMaterial
-          color="#a78bfa"
-          emissive="#8b5cf6"
-          emissiveIntensity={0.5}
-          roughness={0.3}
           metalness={0.8}
         />
       </mesh>
 
-      {/* Ambient Luminous Floating Particle Dust */}
+      {/* Inner Halo Ring */}
+      <mesh position={[0, 0, -0.02]}>
+        <torusGeometry args={[1.78, 0.012, 16, 96]} />
+        <meshStandardMaterial
+          color="#a78bfa"
+          emissive="#8b5cf6"
+          emissiveIntensity={0.8}
+          roughness={0.3}
+          metalness={0.7}
+        />
+      </mesh>
+
+      {/* Low-poly geometric shards */}
+      <mesh ref={shard1Ref} position={[-2.1, 1.3, -0.2]}>
+        <octahedronGeometry args={[0.15, 0]} />
+        <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} />
+      </mesh>
+      <mesh ref={shard2Ref} position={[2.2, -1.1, -0.15]}>
+        <octahedronGeometry args={[0.18, 0]} />
+        <meshStandardMaterial color="#a78bfa" roughness={0.15} metalness={0.9} />
+      </mesh>
+      <mesh ref={shard3Ref} position={[1.4, 1.8, -0.3]}>
+        <octahedronGeometry args={[0.12, 0]} />
+        <meshStandardMaterial color="#8b5cf6" roughness={0.3} metalness={0.8} />
+      </mesh>
+
+      {/* Luminous Particle Field */}
       <points ref={particlesRef} geometry={particleGeo}>
         <pointsMaterial
-          size={0.045}
-          color="#00e5ff"
+          size={0.035}
+          color="#c4b5fd"
           transparent
           opacity={0.85}
-          sizeAttenuation
           blending={THREE.AdditiveBlending}
+          depthWrite={false}
         />
       </points>
     </group>
