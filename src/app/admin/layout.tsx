@@ -1,6 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/admin/SignOutButton'
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard | Vedanth Gali',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()

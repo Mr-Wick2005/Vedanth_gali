@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Icon } from '@/components/ui/icon'
+import { Magnetic } from '@/components/motion/Magnetic'
 
 interface NavigationProps {
   resumeUrl?: string | null
@@ -13,95 +15,106 @@ export function Navigation({ resumeUrl }: NavigationProps) {
   const navLinks = [
     { label: 'About', href: '#about' },
     { label: 'Work', href: '#work' },
+    { label: 'Stack', href: '#stack' },
     { label: 'Leadership', href: '#leadership' },
-    { label: 'Skills', href: '#skills' },
-    { label: 'Certifications', href: '#certifications' },
+    { label: 'Credentials', href: '#credentials' },
     { label: 'Contact', href: '#contact' },
   ]
 
   return (
-    <nav className="border-border/40 bg-background/85 fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
+    <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/[0.08] bg-black/50 backdrop-blur-md transition-all">
+      <div className="mx-auto flex max-w-[1320px] items-center justify-between px-6 py-4">
         {/* Monogram Brandmark */}
         <Link
           href="/"
-          className="group font-display text-text flex items-center gap-1.5 text-lg font-extrabold tracking-tight"
+          className="group flex items-center gap-1 font-display text-lg font-black tracking-tight text-white transition-opacity hover:opacity-80"
         >
           <span>VG</span>
-          <span className="bg-accent h-1.5 w-1.5 rounded-full transition-transform group-hover:scale-125" />
+          <span className="text-violet-400">.</span>
         </Link>
 
         {/* Desktop Nav Items */}
-        <div className="hidden items-center gap-8 md:flex">
-          <div className="flex items-center gap-6">
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
+          <ul className="flex items-center gap-6 list-none m-0 p-0">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-muted hover:text-accent font-mono text-xs transition-colors"
-              >
-                {link.label}
-              </a>
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="font-mono text-xs uppercase tracking-wider text-muted transition-colors hover:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          <div className="flex items-center gap-3">
+          <Magnetic strength={0.3}>
             {resumeUrl ? (
               <a
                 href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-accent/40 bg-accent/10 text-accent hover:border-accent hover:bg-accent hover:text-text rounded border px-3.5 py-1.5 font-mono text-xs font-medium transition-all"
+                className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 font-mono text-xs font-semibold text-violet-300 transition-all hover:border-violet-400 hover:bg-violet-500/20 hover:text-white shadow-[0_0_15px_rgba(139,92,246,0.15)]"
               >
-                Résumé ↗
+                <span>Résumé</span>
+                <Icon name="arrow-up-right" size={14} />
               </a>
             ) : (
               <a
                 href="#contact"
-                className="border-accent/40 bg-accent/10 text-accent hover:border-accent hover:bg-accent hover:text-text rounded border px-3.5 py-1.5 font-mono text-xs font-medium transition-all"
+                className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 font-mono text-xs font-semibold text-violet-300 transition-all hover:border-violet-400 hover:bg-violet-500/20 hover:text-white shadow-[0_0_15px_rgba(139,92,246,0.15)]"
               >
-                Get in Touch
+                <span>Connect</span>
+                <Icon name="arrow-up-right" size={14} />
               </a>
             )}
-          </div>
-        </div>
+          </Magnetic>
+        </nav>
 
-        {/* Mobile Hamburger Button */}
+        {/* Mobile menu button */}
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-muted transition-colors hover:text-white md:hidden"
+          aria-expanded={mobileMenuOpen}
           aria-label="Toggle navigation menu"
-          className="border-border bg-surface text-text flex h-9 w-9 items-center justify-center rounded border md:hidden"
         >
-          <span className="font-mono text-xs">{mobileMenuOpen ? '✕' : '☰'}</span>
+          <Icon name={mobileMenuOpen ? 'x' : 'menu'} size={20} />
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="border-border bg-surface border-b px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-3">
+        <div className="border-b border-white/10 bg-black/95 px-6 py-6 md:hidden">
+          <ul className="flex flex-col gap-4 list-none m-0 p-0">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-muted hover:text-accent py-1 font-mono text-sm transition-colors"
-              >
-                {link.label}
-              </a>
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block font-mono text-sm uppercase tracking-wider text-muted transition-colors hover:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
             ))}
-            <div className="pt-2">
-              <a
-                href={resumeUrl || '#contact'}
-                onClick={() => setMobileMenuOpen(false)}
-                className="border-accent bg-accent/10 text-accent inline-block rounded border px-4 py-2 font-mono text-xs"
-              >
-                {resumeUrl ? 'Download Résumé ↗' : 'Contact Me'}
-              </a>
-            </div>
-          </div>
+            {resumeUrl && (
+              <li className="pt-2">
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-flex items-center gap-2 rounded-full border border-violet-500/40 bg-violet-500/10 px-4 py-2 font-mono text-xs font-semibold text-violet-300"
+                >
+                  <span>Download Résumé</span>
+                  <Icon name="download" size={14} />
+                </a>
+              </li>
+            )}
+          </ul>
         </div>
       )}
-    </nav>
+    </header>
   )
 }

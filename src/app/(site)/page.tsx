@@ -10,6 +10,9 @@ import {
 } from '@/lib/content'
 
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider'
+import { Grain } from '@/components/motion/Grain'
+import { Cursor } from '@/components/motion/Cursor'
+import { Preloader } from '@/components/motion/Preloader'
 import { SectionReveal } from '@/components/ui/SectionReveal'
 import { Navigation } from '@/components/sections/Navigation'
 import { Hero } from '@/components/sections/Hero'
@@ -85,6 +88,9 @@ export default async function HomePage() {
 
   return (
     <SmoothScrollProvider>
+      <Preloader />
+      <Grain />
+      <Cursor />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -125,7 +131,7 @@ export default async function HomePage() {
         </SectionReveal>
 
         {/* Footer */}
-        <Footer socialLinks={socialLinks} stats={stats} />
+        <Footer socialLinks={socialLinks} email={profile?.email || 'vedanthgali@gmail.com'} />
       </div>
     </SmoothScrollProvider>
   )

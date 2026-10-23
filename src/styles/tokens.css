@@ -1,13 +1,27 @@
 :root {
-  /* Colors - Single accent violet palette */
-  --color-background: #06060f;
+  /* Canvas & Stages */
+  --color-stage-black: #000000;
+  --color-stage-deep: #06060f;
+  --color-stage-indigo: #0a0a1f;
+
+  /* Colors - Single accent violet palette with depth */
+  --color-background: var(--color-stage-deep);
   --color-surface: #0d0d1f;
   --color-surface-hover: #14142b;
+  --color-surface-glass: rgba(13, 13, 31, 0.72);
   --color-border: rgba(139, 92, 246, 0.22);
   --color-border-hover: rgba(139, 92, 246, 0.45);
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-accent: rgba(167, 139, 250, 0.25);
+  
   --color-text: #f2f2fa;
-  --color-muted: #9a9ab5;
+  --color-text-lilac: #e8e5f7;
+  --color-muted: #9594b2;
+  --color-text-dim: rgba(255, 255, 255, 0.28);
+  
   --color-accent: #8b5cf6;
+  --color-violet-glow: #a78bfa;
+  --color-cyan-glow: #38bdf8;
   --color-accent-subtle: rgba(139, 92, 246, 0.12);
 
   /* Font Slots (set by next/font in layout) */
@@ -15,16 +29,17 @@
   --font-body: var(--font-body-slot, 'Geist Sans', system-ui, -apple-system, sans-serif);
   --font-mono: var(--font-mono-slot, 'Geist Mono', ui-monospace, SFMono-Regular, monospace);
 
-  /* Fluid Type Scale using clamp() */
+  /* Fluid Type Scale using clamp() - Body at least 17px (1.0625rem) */
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
   --font-size-sm: clamp(0.875rem, 0.82rem + 0.28vw, 0.9375rem);
-  --font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
-  --font-size-md: clamp(1.125rem, 1.05rem + 0.38vw, 1.25rem);
-  --font-size-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
-  --font-size-xl: clamp(1.5rem, 1.35rem + 0.75vw, 1.875rem);
-  --font-size-2xl: clamp(1.875rem, 1.65rem + 1.1vw, 2.375rem);
-  --font-size-3xl: clamp(2.25rem, 1.95rem + 1.5vw, 3rem);
-  --font-size-4xl: clamp(2.75rem, 2.3rem + 2.25vw, 4rem);
+  --font-size-base: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem);
+  --font-size-md: clamp(1.1875rem, 1.1rem + 0.38vw, 1.3125rem);
+  --font-size-lg: clamp(1.375rem, 1.25rem + 0.5vw, 1.625rem);
+  --font-size-xl: clamp(1.625rem, 1.45rem + 0.75vw, 2rem);
+  --font-size-2xl: clamp(2rem, 1.75rem + 1.1vw, 2.5rem);
+  --font-size-3xl: clamp(2.5rem, 2.1rem + 1.6vw, 3.5rem);
+  --font-size-4xl: clamp(3.2rem, 2.6rem + 2.5vw, 5rem);
+  --font-size-display: clamp(3.5rem, 12vw, 11rem);
 
   /* Spacing Scale */
   --space-1: 0.25rem;
@@ -40,7 +55,7 @@
   --space-20: 5rem;
   --space-24: 6rem;
   --section-padding: clamp(6rem, 12vw, 10rem);
-  --container-max: 1200px;
+  --container-max: 1320px;
 
   /* Radii */
   --radius-sm: 0.25rem;
@@ -53,8 +68,9 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-in: cubic-bezier(0.3, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* Durations (200-600ms range) */
+  /* Durations (200-600ms range for UI) */
   --duration-fast: 200ms;
   --duration-normal: 350ms;
   --duration-slow: 500ms;

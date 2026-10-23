@@ -8,8 +8,11 @@
   --color-border: var(--color-border);
   --color-border-hover: var(--color-border-hover);
   --color-text: var(--color-text);
+  --color-text-lilac: var(--color-text-lilac);
   --color-muted: var(--color-muted);
   --color-accent: var(--color-accent);
+  --color-violet-glow: var(--color-violet-glow);
+  --color-cyan-glow: var(--color-cyan-glow);
   --color-accent-subtle: var(--color-accent-subtle);
 
   --font-display: var(--font-display);
@@ -26,32 +29,45 @@
 }
 
 html {
-  scroll-behavior: smooth;
   background-color: var(--color-background);
   color: var(--color-text);
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: var(--color-background);
-  color: var(--color-text);
+  color: var(--color-text-lilac);
   font-family: var(--font-body);
   font-size: var(--font-size-base);
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 ::selection {
   background-color: var(--color-accent);
-  color: var(--color-text);
+  color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-violet-glow);
   outline-offset: 2px;
 }
 
+/* Outlined / Stroke Typography */
+.text-stroke {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.4);
+  color: transparent;
+}
+
+.text-stroke-violet {
+  -webkit-text-stroke: 1.5px rgba(167, 139, 250, 0.6);
+  color: transparent;
+}
+
+/* Reduced Motion Overrides */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

@@ -138,6 +138,8 @@ export interface Database {
           repo_url: string | null
           cover_image_url: string | null
           cover_image_alt: string | null
+          cover_video_url?: string | null
+          cover_video_poster_url?: string | null
           gallery: Json
           metrics: Json
           featured: boolean
@@ -161,6 +163,8 @@ export interface Database {
           repo_url?: string | null
           cover_image_url?: string | null
           cover_image_alt?: string | null
+          cover_video_url?: string | null
+          cover_video_poster_url?: string | null
           gallery?: Json
           metrics?: Json
           featured?: boolean
@@ -184,6 +188,8 @@ export interface Database {
           repo_url?: string | null
           cover_image_url?: string | null
           cover_image_alt?: string | null
+          cover_video_url?: string | null
+          cover_video_poster_url?: string | null
           gallery?: Json
           metrics?: Json
           featured?: boolean
@@ -207,6 +213,9 @@ export interface Database {
           highlights: string[]
           logo_url: string | null
           logo_alt: string | null
+          image_url?: string | null
+          image_alt?: string | null
+          gallery?: Json
           sort_order: number
           is_published: boolean
           created_at: string
@@ -259,6 +268,9 @@ export interface Database {
           status: string
           logo_url: string | null
           logo_alt: string | null
+          image_url?: string | null
+          image_alt?: string | null
+          gallery?: Json
           sort_order: number
           is_published: boolean
           created_at: string
