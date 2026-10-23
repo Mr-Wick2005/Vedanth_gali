@@ -95,37 +95,47 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="bg-background text-text min-h-screen">
+        {/* Skip to Main Content Link for Screen Readers & Keyboard Navigation */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[300] focus:rounded-full focus:bg-violet-600 focus:px-5 focus:py-2.5 focus:font-mono focus:text-xs focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none"
+        >
+          Skip to main content
+        </a>
+
         {/* Sticky Navigation */}
         <Navigation resumeUrl={profile?.resume_url} />
 
-        {/* Hero Section with R3F 3D Ring */}
-        <Hero profile={profile} socialLinks={socialLinks} />
+        <main id="main-content">
+          {/* Hero Section with R3F 3D Ring */}
+          <Hero profile={profile} socialLinks={socialLinks} />
 
-        {/* Section 03: About & 3D ID Card */}
-        <About
-          profile={profile}
-          education={education}
-          stats={{
-            projectsCount: projects.length,
-            leadershipCount: experience.length,
-            certsCount: certifications.length,
-          }}
-        />
+          {/* Section 03: About & 3D ID Card */}
+          <About
+            profile={profile}
+            education={education}
+            stats={{
+              projectsCount: projects.length,
+              leadershipCount: experience.length,
+              certsCount: certifications.length,
+            }}
+          />
 
-        {/* Section 04: Work (Stacked Deck) */}
-        <Work projects={projects} />
+          {/* Section 04: Work (Stacked Deck) */}
+          <Work projects={projects} />
 
-        {/* Section 05: Big-Type Velocity Marquee Band */}
-        <BigTypeBand />
+          {/* Section 05: Big-Type Velocity Marquee Band */}
+          <BigTypeBand />
 
-        {/* Section 06: Stack Matrix (with cross-project mapping) */}
-        <Skills skillsGrouped={skillsGrouped} projects={projects} />
+          {/* Section 06: Stack Matrix (with cross-project mapping) */}
+          <Skills skillsGrouped={skillsGrouped} projects={projects} />
 
-        {/* Section 07: Leadership with Scroll-Drawn Timeline */}
-        <Leadership experience={experience} />
+          {/* Section 07: Leadership with Scroll-Drawn Timeline */}
+          <Leadership experience={experience} />
 
-        {/* Section 08: Credentials & Certifications Rail */}
-        <Certifications certifications={certifications} />
+          {/* Section 08: Credentials & Certifications Rail */}
+          <Certifications certifications={certifications} />
+        </main>
 
         {/* Section 09: Kinetic Contact Stage & Editorial Footer */}
         <div id="contact">
