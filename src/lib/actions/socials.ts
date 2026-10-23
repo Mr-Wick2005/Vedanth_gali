@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { optionalIdSchema } from '@/lib/validations'
 
 const socialSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: optionalIdSchema,
   label: z.string().min(1, 'Label is required'),
   url: z.string().min(1, 'URL is required'),
   display_text: z.string().nullable().optional(),

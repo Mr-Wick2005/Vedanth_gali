@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { optionalIdSchema } from '@/lib/validations'
 
 const certSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: optionalIdSchema,
   title: z.string().min(1, 'Title is required'),
   issuer: z.string().min(1, 'Issuer is required'),
   year: z.number().int(),

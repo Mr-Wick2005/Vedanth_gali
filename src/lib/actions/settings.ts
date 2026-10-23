@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { requiredIdSchema } from '@/lib/validations'
 
 const settingsSchema = z.object({
-  id: z.string().uuid(),
+  id: requiredIdSchema,
   seo_title: z.string().min(1, 'SEO title is required'),
   seo_description: z.string().min(1, 'SEO description is required'),
   og_image_url: z.string().nullable().optional(),

@@ -20,11 +20,10 @@ export function FileUploader({
 }: FileUploaderProps) {
   const [currentUrl, setCurrentUrl] = useState<string | null>(initialUrl || null)
   const [currentPath, setCurrentPath] = useState<string | null>(initialPath || null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setErrorMsg(null)
     const file = e.target.files?.[0]
     if (!file) return
@@ -39,24 +38,16 @@ export function FileUploader({
       return
     }
 
-    setSelectedFile(file)
-  }
-
-  async function handleUpload() {
-    if (!selectedFile) return
     setUploading(true)
-    setErrorMsg(null)
 
     try {
       const supabase = createClient()
       const filePath = `resume/${crypto.randomUUID()}.pdf`
 
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, selectedFile, {
-          contentType: 'application/pdf',
-          upsert: true,
-        })
+      const { error: uploadError } = await supabase.storage.from('media').upload(filePath, file, {
+        contentType: 'application/pdf',
+        upsert: true,
+      })
 
       if (uploadError) throw new Error(uploadError.message)
 
@@ -70,7 +61,6 @@ export function FileUploader({
 
       setCurrentUrl(publicUrl)
       setCurrentPath(filePath)
-      setSelectedFile(null)
       onUploadComplete(publicUrl, filePath)
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Upload failed.')
@@ -90,7 +80,6 @@ export function FileUploader({
     }
     setCurrentUrl(null)
     setCurrentPath(null)
-    setSelectedFile(null)
     if (onRemove) onRemove()
   }
 
@@ -102,54 +91,48 @@ export function FileUploader({
           <button
             type="button"
             onClick={handleRemove}
-            className="font-mono text-xs text-red-400 hover:underline"
+            className="cursor-pointer font-mono text-xs text-red-400 hover:underline"
           >
-            Remove File
+            Remove Document
           </button>
         )}
       </div>
 
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+      <div className="space-y-2">
         <input
           type="file"
           accept="application/pdf"
           onChange={handleFileChange}
-          className="text-muted file:border-border file:bg-surface file:text-text hover:file:border-accent font-mono text-xs file:mr-3 file:rounded file:border file:px-3 file:py-1 file:font-mono file:text-xs"
+          disabled={uploading}
+          className="text-muted file:border-border file:bg-surface file:text-text hover:file:border-accent w-full cursor-pointer font-mono text-xs file:mr-3 file:rounded file:border file:px-3 file:py-1 file:font-mono file:text-xs"
         />
 
-        {selectedFile && (
-          <button
-            type="button"
-            onClick={handleUpload}
-            disabled={uploading}
-            className="border-accent bg-accent/15 text-accent hover:bg-accent hover:text-text rounded border px-4 py-1.5 font-mono text-xs font-semibold disabled:opacity-50"
-          >
-            {uploading ? 'Uploading PDF...' : 'Upload PDF'}
-          </button>
+        {uploading && (
+          <p className="text-accent animate-pulse font-mono text-xs">
+            Uploading PDF to media bucket...
+          </p>
+        )}
+
+        {!uploading && currentUrl && (
+          <div className="flex items-center gap-2 font-mono text-xs text-emerald-400">
+            <span>✓ PDF uploaded to CDN</span>
+            <a
+              href={currentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent ml-2 hover:underline"
+            >
+              Preview ↗
+            </a>
+          </div>
+        )}
+
+        {errorMsg && (
+          <p className="rounded border border-red-500/20 bg-red-500/10 p-2 font-mono text-xs text-red-400">
+            {errorMsg}
+          </p>
         )}
       </div>
-
-      {currentUrl && (
-        <div className="border-border/60 bg-surface flex items-center justify-between rounded border p-2.5">
-          <span className="text-text max-w-xs truncate font-mono text-xs">
-            📄 Current Résumé Document
-          </span>
-          <a
-            href={currentUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent font-mono text-xs hover:underline"
-          >
-            View PDF ↗
-          </a>
-        </div>
-      )}
-
-      {errorMsg && (
-        <p className="rounded border border-red-500/20 bg-red-500/10 p-2 font-mono text-xs text-red-400">
-          {errorMsg}
-        </p>
-      )}
     </div>
   )
 }

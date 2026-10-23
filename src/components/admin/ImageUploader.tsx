@@ -32,16 +32,16 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialUrl || null)
   const [altText, setAltText] = useState(initialAlt || '')
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
   const [currentPath, setCurrentPath] = useState<string | null>(initialPath || null)
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(initialUrl || null)
   const [uploading, setUploading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/avif']
   const maxSizeBytes = 10 * 1024 * 1024 // 10MB
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     setErrorMsg(null)
     const file = e.target.files?.[0]
     if (!file) return
@@ -56,73 +56,75 @@ export function ImageUploader({
       return
     }
 
-    setSelectedFile(file)
-    const objectUrl = URL.createObjectURL(file)
-    setPreviewUrl(objectUrl)
+    const localUrl = URL.createObjectURL(file)
+    setPreviewUrl(localUrl)
 
-    // Calculate image dimensions
+    // Compute dimensions
     const img = new Image()
-    img.onload = () => {
-      setDimensions({ width: img.naturalWidth, height: img.naturalHeight })
-    }
-    img.src = objectUrl
-  }
+    img.src = localUrl
+    img.onload = async () => {
+      const w = img.naturalWidth
+      const h = img.naturalHeight
+      setDimensions({ width: w, height: h })
 
-  async function handleUpload() {
-    if (!selectedFile) {
-      setErrorMsg('Please select an image file first.')
-      return
-    }
+      // Auto-upload immediately to Supabase Storage
+      setUploading(true)
+      try {
+        const supabase = createClient()
+        const ext = file.name.split('.').pop() || 'webp'
+        const filePath = `${folder}/${crypto.randomUUID()}.${ext}`
 
-    if (!altText.trim()) {
-      setErrorMsg('Alt text is strictly required for accessibility before saving.')
-      return
-    }
-
-    setUploading(true)
-    setErrorMsg(null)
-
-    try {
-      const supabase = createClient()
-      const ext = selectedFile.name.split('.').pop() || 'webp'
-      const filePath = `${folder}/${crypto.randomUUID()}.${ext}`
-
-      // 1. Upload to Supabase 'media' bucket
-      const { error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filePath, selectedFile, {
-          contentType: selectedFile.type,
+        const { error: uploadError } = await supabase.storage.from('media').upload(filePath, file, {
+          contentType: file.type,
           upsert: true,
         })
 
-      if (uploadError) {
-        throw new Error(uploadError.message)
+        if (uploadError) {
+          throw new Error(uploadError.message)
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('media').getPublicUrl(filePath)
+
+        if (currentPath && currentPath !== filePath) {
+          await supabase.storage.from('media').remove([currentPath])
+        }
+
+        setCurrentPath(filePath)
+        setUploadedUrl(publicUrl)
+        setPreviewUrl(publicUrl)
+
+        const finalAlt = altText.trim() || 'Uploaded visual'
+        if (!altText.trim()) {
+          setAltText(finalAlt)
+        }
+
+        onUploadComplete({
+          url: publicUrl,
+          alt: finalAlt,
+          width: w,
+          height: h,
+          path: filePath,
+        })
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Upload failed.')
+      } finally {
+        setUploading(false)
       }
+    }
+  }
 
-      // 2. Obtain Public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('media').getPublicUrl(filePath)
-
-      // 3. Delete old object if replacing an existing file
-      if (currentPath && currentPath !== filePath) {
-        await supabase.storage.from('media').remove([currentPath])
-      }
-
-      setCurrentPath(filePath)
-      setSelectedFile(null)
-
+  function handleAltChange(newAlt: string) {
+    setAltText(newAlt)
+    if (uploadedUrl) {
       onUploadComplete({
-        url: publicUrl,
-        alt: altText.trim(),
+        url: uploadedUrl,
+        alt: newAlt.trim(),
         width: dimensions?.width || 1200,
         height: dimensions?.height || 800,
-        path: filePath,
+        path: currentPath || '',
       })
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Upload failed.')
-    } finally {
-      setUploading(false)
     }
   }
 
@@ -136,9 +138,10 @@ export function ImageUploader({
       }
     }
     setPreviewUrl(null)
-    setSelectedFile(null)
+    setUploadedUrl(null)
     setCurrentPath(null)
     setAltText('')
+    setDimensions(null)
     if (onRemove) onRemove()
   }
 
@@ -150,14 +153,14 @@ export function ImageUploader({
           <button
             type="button"
             onClick={handleRemoveImage}
-            className="font-mono text-xs text-red-400 hover:underline"
+            className="cursor-pointer font-mono text-xs text-red-400 hover:underline"
           >
             Remove Image
           </button>
         )}
       </div>
 
-      {/* Image Preview & Dropzone */}
+      {/* Image Preview & Upload control */}
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         {previewUrl ? (
           <div className="border-border bg-surface relative h-28 w-28 shrink-0 overflow-hidden rounded border">
@@ -179,8 +182,17 @@ export function ImageUploader({
             type="file"
             accept="image/png, image/jpeg, image/webp, image/avif"
             onChange={handleFileChange}
-            className="text-muted file:border-border file:bg-surface file:text-text hover:file:border-accent w-full font-mono text-xs file:mr-3 file:rounded file:border file:px-3 file:py-1 file:font-mono file:text-xs"
+            disabled={uploading}
+            className="text-muted file:border-border file:bg-surface file:text-text hover:file:border-accent w-full cursor-pointer font-mono text-xs file:mr-3 file:rounded file:border file:px-3 file:py-1 file:font-mono file:text-xs"
           />
+          {uploading && (
+            <p className="text-accent animate-pulse font-mono text-xs">
+              Uploading to media bucket...
+            </p>
+          )}
+          {!uploading && uploadedUrl && (
+            <p className="font-mono text-xs text-emerald-400">✓ Ready and uploaded to CDN</p>
+          )}
           {dimensions && (
             <p className="text-muted font-mono text-[11px]">
               Dimensions: {dimensions.width} × {dimensions.height} px
@@ -189,15 +201,15 @@ export function ImageUploader({
         </div>
       </div>
 
-      {/* Mandatory Alt-Text Input */}
+      {/* Accessibility Alt-Text Input */}
       <div>
         <label className="text-muted mb-1 block font-mono text-[11px]">
-          Accessibility Alt Text <span className="text-red-400">*</span>
+          Accessibility Alt Text <span className="text-accent">*</span>
         </label>
         <input
           type="text"
           value={altText}
-          onChange={(e) => setAltText(e.target.value)}
+          onChange={(e) => handleAltChange(e.target.value)}
           placeholder="Descriptive explanation of the visual content..."
           className="border-border bg-surface text-text placeholder-muted/50 focus:border-accent w-full rounded border px-3 py-1.5 text-xs focus:outline-none"
         />
@@ -207,17 +219,6 @@ export function ImageUploader({
         <p className="rounded border border-red-500/20 bg-red-500/10 p-2 font-mono text-xs text-red-400">
           {errorMsg}
         </p>
-      )}
-
-      {selectedFile && (
-        <button
-          type="button"
-          onClick={handleUpload}
-          disabled={uploading || !altText.trim()}
-          className="border-accent bg-accent/15 text-accent hover:bg-accent hover:text-text rounded border px-4 py-1.5 font-mono text-xs font-semibold transition-all disabled:opacity-50"
-        >
-          {uploading ? 'Uploading to Media Bucket...' : 'Upload & Confirm Image'}
-        </button>
       )}
     </div>
   )

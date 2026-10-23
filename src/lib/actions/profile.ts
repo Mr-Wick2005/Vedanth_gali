@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { requiredIdSchema } from '@/lib/validations'
 
 const profileSchema = z.object({
-  id: z.string().uuid(),
+  id: requiredIdSchema,
   name: z.string().min(1, 'Name is required'),
   headline: z.string().min(1, 'Headline is required'),
   short_bio: z.string().min(1, 'Short bio is required'),

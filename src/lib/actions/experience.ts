@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { optionalIdSchema } from '@/lib/validations'
 
 const experienceSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: optionalIdSchema,
   company: z.string().min(1, 'Company/Org is required'),
   title: z.string().min(1, 'Title is required'),
   start_date: z.string().min(1, 'Start date is required'),
