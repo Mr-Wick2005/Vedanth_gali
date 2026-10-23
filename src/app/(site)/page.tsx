@@ -18,6 +18,7 @@ import { Navigation } from '@/components/sections/Navigation'
 import { Hero } from '@/components/sections/Hero'
 import { About } from '@/components/sections/About'
 import { Work } from '@/components/sections/Work'
+import { BigTypeBand } from '@/components/sections/BigTypeBand'
 import { Leadership } from '@/components/sections/Leadership'
 import { Skills } from '@/components/sections/Skills'
 import { Certifications } from '@/components/sections/Certifications'
@@ -107,10 +108,11 @@ export default async function HomePage() {
           <About profile={profile} education={education} />
         </SectionReveal>
 
-        {/* Section 02: Work */}
-        <SectionReveal>
-          <Work projects={projects} />
-        </SectionReveal>
+        {/* Section 02: Work (Stacked Deck) */}
+        <Work projects={projects} />
+
+        {/* Big-Type Velocity Marquee Band */}
+        <BigTypeBand />
 
         {/* Section 03: Leadership with Scroll-Drawn Timeline */}
         <Leadership experience={experience} />
