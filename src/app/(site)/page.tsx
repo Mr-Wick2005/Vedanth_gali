@@ -13,7 +13,6 @@ import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvide
 import { Grain } from '@/components/motion/Grain'
 import { Cursor } from '@/components/motion/Cursor'
 import { Preloader } from '@/components/motion/Preloader'
-import { SectionReveal } from '@/components/ui/SectionReveal'
 import { Navigation } from '@/components/sections/Navigation'
 import { Hero } from '@/components/sections/Hero'
 import { About } from '@/components/sections/About'
@@ -22,7 +21,6 @@ import { BigTypeBand } from '@/components/sections/BigTypeBand'
 import { Leadership } from '@/components/sections/Leadership'
 import { Skills } from '@/components/sections/Skills'
 import { Certifications } from '@/components/sections/Certifications'
-import { Contact } from '@/components/sections/Contact'
 import { Footer } from '@/components/sections/Footer'
 
 export const revalidate = 60
@@ -103,37 +101,36 @@ export default async function HomePage() {
         {/* Hero Section with R3F 3D Ring */}
         <Hero profile={profile} socialLinks={socialLinks} />
 
-        {/* Section 01: About */}
-        <SectionReveal>
-          <About profile={profile} education={education} />
-        </SectionReveal>
+        {/* Section 03: About & 3D ID Card */}
+        <About
+          profile={profile}
+          education={education}
+          stats={{
+            projectsCount: projects.length,
+            leadershipCount: experience.length,
+            certsCount: certifications.length,
+          }}
+        />
 
-        {/* Section 02: Work (Stacked Deck) */}
+        {/* Section 04: Work (Stacked Deck) */}
         <Work projects={projects} />
 
-        {/* Big-Type Velocity Marquee Band */}
+        {/* Section 05: Big-Type Velocity Marquee Band */}
         <BigTypeBand />
 
-        {/* Section 03: Leadership with Scroll-Drawn Timeline */}
+        {/* Section 06: Stack Matrix (with cross-project mapping) */}
+        <Skills skillsGrouped={skillsGrouped} projects={projects} />
+
+        {/* Section 07: Leadership with Scroll-Drawn Timeline */}
         <Leadership experience={experience} />
 
-        {/* Section 04: Skills */}
-        <SectionReveal>
-          <Skills skillsGrouped={skillsGrouped} />
-        </SectionReveal>
+        {/* Section 08: Credentials & Certifications Rail */}
+        <Certifications certifications={certifications} />
 
-        {/* Section 05: Certifications */}
-        <SectionReveal>
-          <Certifications certifications={certifications} />
-        </SectionReveal>
-
-        {/* Section 06: Contact */}
-        <SectionReveal>
-          <Contact profile={profile} socialLinks={socialLinks} />
-        </SectionReveal>
-
-        {/* Footer */}
-        <Footer socialLinks={socialLinks} email={profile?.email || 'vedanthgali@gmail.com'} />
+        {/* Section 09: Kinetic Contact Stage & Editorial Footer */}
+        <div id="contact">
+          <Footer socialLinks={socialLinks} email={profile?.email || 'vedanthgali@gmail.com'} />
+        </div>
       </div>
     </SmoothScrollProvider>
   )
