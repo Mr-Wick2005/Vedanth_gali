@@ -9,6 +9,8 @@ import {
   hasSupabaseEnv,
 } from '@/lib/content'
 
+import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider'
+import { SectionReveal } from '@/components/ui/SectionReveal'
 import { Navigation } from '@/components/sections/Navigation'
 import { Hero } from '@/components/sections/Hero'
 import { About } from '@/components/sections/About'
@@ -77,33 +79,45 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text">
-      {/* 1. Sticky Navigation */}
-      <Navigation resumeUrl={profile?.resume_url} />
+    <SmoothScrollProvider>
+      <div className="min-h-screen bg-background text-text">
+        {/* Sticky Navigation */}
+        <Navigation resumeUrl={profile?.resume_url} />
 
-      {/* 2. Hero Section */}
-      <Hero profile={profile} socialLinks={socialLinks} />
+        {/* Hero Section with R3F 3D Ring */}
+        <Hero profile={profile} socialLinks={socialLinks} />
 
-      {/* 3. Section 01: About */}
-      <About profile={profile} education={education} />
+        {/* Section 01: About */}
+        <SectionReveal>
+          <About profile={profile} education={education} />
+        </SectionReveal>
 
-      {/* 4. Section 02: Work */}
-      <Work projects={projects} />
+        {/* Section 02: Work */}
+        <SectionReveal>
+          <Work projects={projects} />
+        </SectionReveal>
 
-      {/* 5. Section 03: Leadership */}
-      <Leadership experience={experience} />
+        {/* Section 03: Leadership with Scroll-Drawn Timeline */}
+        <Leadership experience={experience} />
 
-      {/* 6. Section 04: Skills */}
-      <Skills skillsGrouped={skillsGrouped} />
+        {/* Section 04: Skills */}
+        <SectionReveal>
+          <Skills skillsGrouped={skillsGrouped} />
+        </SectionReveal>
 
-      {/* 7. Section 05: Certifications */}
-      <Certifications certifications={certifications} />
+        {/* Section 05: Certifications */}
+        <SectionReveal>
+          <Certifications certifications={certifications} />
+        </SectionReveal>
 
-      {/* 8. Section 06: Contact */}
-      <Contact profile={profile} socialLinks={socialLinks} />
+        {/* Section 06: Contact */}
+        <SectionReveal>
+          <Contact profile={profile} socialLinks={socialLinks} />
+        </SectionReveal>
 
-      {/* 9. Footer */}
-      <Footer socialLinks={socialLinks} stats={stats} />
-    </div>
+        {/* Footer */}
+        <Footer socialLinks={socialLinks} stats={stats} />
+      </div>
+    </SmoothScrollProvider>
   )
 }
