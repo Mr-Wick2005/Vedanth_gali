@@ -56,7 +56,7 @@ export function SplitText({
   // by === 'char'
   const chars = Array.from(text)
   return (
-    <span className={`inline-flex flex-wrap ${className}`}>
+    <span className={`inline-flex whitespace-nowrap ${className}`}>
       {chars.map((char, i) => (
         <span key={i} className="inline-block overflow-hidden pb-[0.08em]">
           <motion.span

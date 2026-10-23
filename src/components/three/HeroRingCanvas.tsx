@@ -28,14 +28,14 @@ function CssRingFallback() {
       className="pointer-events-none absolute inset-0 flex items-center justify-center"
     >
       <div
-        className="h-[360px] w-[360px] sm:h-[440px] sm:w-[440px] rounded-full p-[3px] shadow-[0_0_50px_rgba(139,92,246,0.45)]"
+        className="h-[340px] w-[340px] sm:h-[380px] sm:w-[380px] lg:h-[420px] lg:w-[420px] rounded-full p-[2.5px] shadow-[0_0_45px_rgba(139,92,246,0.55),0_0_80px_rgba(56,189,248,0.3)]"
         style={{
           background:
-            'conic-gradient(from 0deg, #38bdf8, #8b5cf6, #a78bfa, #38bdf8)',
+            'conic-gradient(from 0deg, #38bdf8, #8b5cf6, #a78bfa, #00e5ff, #38bdf8)',
           animation: 'spin 14s linear infinite',
         }}
       >
-        <div className="h-full w-full rounded-full bg-black/90" />
+        <div className="h-full w-full rounded-full bg-black/75 backdrop-blur-[2px]" />
       </div>
       <style>{`
         @keyframes spin {
