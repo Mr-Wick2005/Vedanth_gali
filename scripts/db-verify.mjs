@@ -83,7 +83,10 @@ async function verifyAll() {
       .select('slug, title, is_published')
       .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
-    return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} published project(s)` }
+    return {
+      pass: Array.isArray(data) && data.length > 0,
+      details: `Read ${data.length} published project(s)`,
+    }
   })
 
   // 4. Isolation: Anon CANNOT read unpublished draft projects
@@ -96,41 +99,58 @@ async function verifyAll() {
     const passed = Array.isArray(data) && data.length === 0
     return {
       pass: passed,
-      details: passed ? '0 draft rows returned (RLS filtered)' : `LEAK: returned ${data.length} draft row(s)`,
+      details: passed
+        ? '0 draft rows returned (RLS filtered)'
+        : `LEAK: returned ${data.length} draft row(s)`,
     }
   })
 
   // 5. Public Read: Experience
   await runTest('Public can read published experience', async () => {
-    const { data, error } = await supabase.from('experience').select('company, title').eq('is_published', true)
+    const { data, error } = await supabase
+      .from('experience')
+      .select('company, title')
+      .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
     return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} row(s)` }
   })
 
   // 6. Public Read: Education
   await runTest('Public can read published education', async () => {
-    const { data, error } = await supabase.from('education').select('institution, degree').eq('is_published', true)
+    const { data, error } = await supabase
+      .from('education')
+      .select('institution, degree')
+      .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
     return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} row(s)` }
   })
 
   // 7. Public Read: Certifications
   await runTest('Public can read published certifications', async () => {
-    const { data, error } = await supabase.from('certifications').select('title, issuer').eq('is_published', true)
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('title, issuer')
+      .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
     return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} row(s)` }
   })
 
   // 8. Public Read: Skills
   await runTest('Public can read published skills', async () => {
-    const { data, error } = await supabase.from('skills').select('name, category').eq('is_published', true)
+    const { data, error } = await supabase
+      .from('skills')
+      .select('name, category')
+      .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
     return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} skill(s)` }
   })
 
   // 9. Public Read: Social Links (including Phone)
   await runTest('Public can read published social_links', async () => {
-    const { data, error } = await supabase.from('social_links').select('label, url').eq('is_published', true)
+    const { data, error } = await supabase
+      .from('social_links')
+      .select('label, url')
+      .eq('is_published', true)
     if (error) return { pass: false, details: error.message }
     return { pass: Array.isArray(data) && data.length > 0, details: `Read ${data.length} link(s)` }
   })
@@ -158,7 +178,9 @@ async function verifyAll() {
     const passed = error !== null
     return {
       pass: passed,
-      details: passed ? `Blocked by RLS (${error.code || error.message})` : 'FAILED: Anon insert succeeded!',
+      details: passed
+        ? `Blocked by RLS (${error.code || error.message})`
+        : 'FAILED: Anon insert succeeded!',
     }
   })
 
@@ -172,38 +194,57 @@ async function verifyAll() {
     const passed = error !== null
     return {
       pass: passed,
-      details: passed ? `Blocked by RLS (${error.code || error.message})` : 'FAILED: Anon insert succeeded!',
+      details: passed
+        ? `Blocked by RLS (${error.code || error.message})`
+        : 'FAILED: Anon insert succeeded!',
     }
   })
 
   // 13. Security: Anon CANNOT update profile
   await runTest('Anon cannot update profile', async () => {
-    const { error } = await supabase.from('profile').update({ name: 'Tampered' }).neq('id', '00000000-0000-0000-0000-000000000000')
-    const passed = error !== null
+    const { data, error } = await supabase
+      .from('profile')
+      .update({ name: 'Tampered Name' })
+      .neq('id', '00000000-0000-0000-0000-000000000000')
+      .select()
+    const passed = error !== null || (Array.isArray(data) && data.length === 0)
     return {
       pass: passed,
-      details: passed ? `Blocked by RLS (${error.code || error.message})` : 'FAILED: Anon update succeeded!',
+      details: passed
+        ? 'Blocked by RLS (0 rows updated)'
+        : `FAILED: Anon modified ${data.length} row(s)!`,
     }
   })
 
   // 14. Security: Anon CANNOT delete from skills
   await runTest('Anon cannot delete from skills', async () => {
-    const { error } = await supabase.from('skills').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-    const passed = error !== null
+    const { data, error } = await supabase
+      .from('skills')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000')
+      .select()
+    const passed = error !== null || (Array.isArray(data) && data.length === 0)
     return {
       pass: passed,
-      details: passed ? `Blocked by RLS (${error.code || error.message})` : 'FAILED: Anon delete succeeded!',
+      details: passed
+        ? 'Blocked by RLS (0 rows deleted)'
+        : `FAILED: Anon deleted ${data.length} row(s)!`,
     }
   })
 
   // 15. Security: Anon CANNOT upload to media bucket
   await runTest('Anon cannot upload to media bucket', async () => {
-    const testContent = Buffer.from('test malicious file')
-    const { error } = await supabase.storage.from('media').upload('test/malicious.txt', testContent)
+    const testContent = Buffer.from('test file content')
+    const { error } = await supabase.storage.from('media').upload('test/probe.png', testContent, {
+      contentType: 'image/png',
+      upsert: true,
+    })
     const passed = error !== null
     return {
       pass: passed,
-      details: passed ? `Blocked by storage RLS (${error.message})` : 'FAILED: Anon upload succeeded!',
+      details: passed
+        ? `Blocked by storage RLS (${error.message})`
+        : 'FAILED: Anon upload succeeded!',
     }
   })
 

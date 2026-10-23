@@ -1,6 +1,7 @@
 # Project Rules: Vedanth Gali Portfolio
 
 ## 1. Stack Summary
+
 - Framework: Next.js 16 (App Router, `src/` directory), React 19.
 - Language: TypeScript (strict mode enabled, no unchecked indexed access).
 - Styling: Tailwind CSS v4 configured with design tokens in `src/styles/tokens.css`.
@@ -10,6 +11,7 @@
 - Code Quality: ESLint, Prettier with `prettier-plugin-tailwindcss`.
 
 ## 2. Design System & Tokens
+
 - `src/styles/tokens.css` is the SINGLE SOURCE OF TRUTH.
 - Never hardcode colors, font sizes, spacing, radii, or easing curves in components.
 - Baseline Palette:
@@ -28,6 +30,7 @@
 - Layout: 12-column grid, max-width 1200px, section padding `clamp(96px, 12vw, 160px)`, left-aligned content (avoid centered-everything layouts).
 
 ## 3. Aesthetic Constraints & Banned Patterns
+
 - BANNED:
   - Gradient text
   - Glassmorphism / backdrop-blur cards
@@ -43,6 +46,7 @@
 - Card styling: Solid `#0D0D1F` surface with 1px low-opacity accent border (`rgba(139, 92, 246, 0.22)`). Hover interaction brightens border to `rgba(139, 92, 246, 0.45)` and translates Y by -2px.
 
 ## 4. Truth & Content Integrity
+
 - Never invent facts, numbers, clients, testimonials, or technologies.
 - Every claim must originate from the verified Content Bible (`docs/BRIEF.md`) or confirmed GitHub repositories.
 - Any inferred item must be tagged `[CONFIRM]` and seeded as a draft (`is_published = false`) or explicit TODO.
@@ -51,12 +55,14 @@
 - Target Role: Frontend Developer or Full-Stack Developer. Do not mention internships or "entry-level" anywhere.
 
 ## 5. Animation & 3D Rules
+
 - One animation idea per section.
 - Durations strictly constrained to 200–600ms.
 - Respect `prefers-reduced-motion` at all times.
 - 3D elements must be procedural, low-poly, DPR capped, lazy-loaded with an immediate static fallback, and reduced on mobile devices.
 
 ## 6. Architecture & Code Quality
+
 - Server Components by default. Use Client Components (`"use client"`) only for interactive controls, state, or client hooks.
 - Small, single-purpose components.
 - Zero dead code or unreferenced dependencies.
