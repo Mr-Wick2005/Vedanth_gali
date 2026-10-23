@@ -29,7 +29,7 @@ export default function HeroRingCanvas() {
 
   if (reducedMotion) {
     return (
-      <div className="border-accent/40 absolute inset-0 rounded-full border shadow-[0_0_40px_rgba(139,92,246,0.3)]" />
+      <div className="border-accent/40 absolute inset-0 rounded-full border shadow-[0_0_50px_rgba(139,92,246,0.35)]" />
     )
   }
 
@@ -41,7 +41,7 @@ export default function HeroRingCanvas() {
         }
       >
         <Canvas
-          camera={{ position: [0, 0, 5], fov: 45 }}
+          camera={{ position: [0, 0, 5.2], fov: 45 }}
           dpr={[1, 2]}
           gl={{
             antialias: true,
