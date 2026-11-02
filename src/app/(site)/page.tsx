@@ -6,7 +6,6 @@ import {
   getCertifications,
   getSkillsGrouped,
   getSocialLinks,
-  hasSupabaseEnv,
 } from '@/lib/content'
 
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider'
@@ -26,30 +25,6 @@ import { Footer } from '@/components/sections/Footer'
 export const revalidate = 60
 
 export default async function HomePage() {
-  const isConfigured = hasSupabaseEnv()
-
-  if (!isConfigured) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-6">
-        <div className="border-border bg-surface w-full max-w-md rounded-lg border p-8 text-center">
-          <div className="bg-accent/10 text-accent mb-4 inline-block rounded-full px-3 py-1 font-mono text-xs">
-            SETUP REQUIRED
-          </div>
-          <h1 className="font-display text-text mb-2 text-2xl font-bold tracking-tight">
-            Environment Setup
-          </h1>
-          <p className="text-muted mb-6 text-sm">
-            Supabase environment variables are missing. Please configure{' '}
-            <code className="bg-surface-hover text-accent rounded px-1.5 py-0.5 font-mono text-xs">
-              .env.local
-            </code>{' '}
-            with your URL and publishable key.
-          </p>
-        </div>
-      </main>
-    )
-  }
-
   const [profile, projects, experience, education, certifications, skillsGrouped, socialLinks] =
     await Promise.all([
       getProfile(),

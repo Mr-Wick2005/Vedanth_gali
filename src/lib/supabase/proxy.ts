@@ -15,44 +15,48 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
-  const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll()
+  try {
+    const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          )
+        },
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-        supabaseResponse = NextResponse.next({
-          request,
-        })
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options),
-        )
-      },
-    },
-  })
+    })
 
-  // Validate session using getClaims() (cryptographic token verification)
-  const { data, error } = await supabase.auth.getClaims()
-  const isAuthenticated = !error && Boolean(data?.claims)
+    // Validate session using getClaims() (cryptographic token verification)
+    const { data, error } = await supabase.auth.getClaims()
+    const isAuthenticated = !error && Boolean(data?.claims)
 
-  const { pathname } = request.nextUrl
+    const { pathname } = request.nextUrl
 
-  // Protect /admin routes (except /admin/login)
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    if (!isAuthenticated) {
+    // Protect /admin routes (except /admin/login)
+    if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
+      if (!isAuthenticated) {
+        const redirectUrl = request.nextUrl.clone()
+        redirectUrl.pathname = '/admin/login'
+        redirectUrl.searchParams.set('next', pathname)
+        return NextResponse.redirect(redirectUrl)
+      }
+    }
+
+    // If already authenticated and accessing login page, redirect directly to /admin
+    if (pathname === '/admin/login' && isAuthenticated) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/admin/login'
-      redirectUrl.searchParams.set('next', pathname)
+      redirectUrl.pathname = '/admin'
       return NextResponse.redirect(redirectUrl)
     }
-  }
-
-  // If already authenticated and accessing login page, redirect directly to /admin
-  if (pathname === '/admin/login' && isAuthenticated) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/admin'
-    return NextResponse.redirect(redirectUrl)
+  } catch (err) {
+    console.warn('Session verification caught error in proxy:', err)
   }
 
   return supabaseResponse

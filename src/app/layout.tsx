@@ -21,10 +21,24 @@ const monoFont = Geist_Mono({
   display: 'swap',
 })
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://vedanthgali.dev'
+function getValidMetadataBase(raw?: string): URL {
+  const fallback = 'https://vedanthgali.dev'
+  if (!raw) return new URL(fallback)
+  try {
+    const formatted = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`
+    return new URL(formatted)
+  } catch {
+    return new URL(fallback)
+  }
+}
+
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://vedanthgali.dev'
+const siteUrl = rawSiteUrl.startsWith('http://') || rawSiteUrl.startsWith('https://')
+  ? rawSiteUrl
+  : `https://${rawSiteUrl}`
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: getValidMetadataBase(process.env.NEXT_PUBLIC_SITE_URL),
   title: {
     default: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
     template: '%s | Vedanth Gali',
