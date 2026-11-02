@@ -61,12 +61,9 @@ export default async function HomePage() {
       getSocialLinks(),
     ])
 
-  const totalSkills = Object.values(skillsGrouped).reduce((acc, list) => acc + list.length, 0)
-
   const stats = {
     projectsCount: projects.length,
-    experienceCount: experience.length,
-    skillsCount: totalSkills,
+    leadershipCount: experience.length,
     certsCount: certifications.length,
   }
 
@@ -94,7 +91,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="bg-background text-text min-h-screen">
+      <div className="bg-background text-text min-h-screen w-full max-w-full overflow-x-hidden">
         {/* Skip to Main Content Link for Screen Readers & Keyboard Navigation */}
         <a
           href="#main-content"
@@ -106,7 +103,7 @@ export default async function HomePage() {
         {/* Sticky Navigation */}
         <Navigation resumeUrl={profile?.resume_url} />
 
-        <main id="main-content">
+        <main id="main-content" className="w-full max-w-full overflow-x-hidden">
           {/* Hero Section with R3F 3D Ring */}
           <Hero profile={profile} socialLinks={socialLinks} />
 
@@ -114,11 +111,7 @@ export default async function HomePage() {
           <About
             profile={profile}
             education={education}
-            stats={{
-              projectsCount: projects.length,
-              leadershipCount: experience.length,
-              certsCount: certifications.length,
-            }}
+            stats={stats}
           />
 
           {/* Section 04: Work (Stacked Deck) */}

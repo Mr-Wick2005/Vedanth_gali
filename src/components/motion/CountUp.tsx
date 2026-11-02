@@ -26,7 +26,7 @@ export function CountUp({ value, duration = 1.6, className = '' }: CountUpProps)
   useEffect(() => {
     if (!isInView || targetNum === null || shouldReduceMotion) {
       if (targetNum !== null && shouldReduceMotion) {
-        setCount(targetNum)
+        requestAnimationFrame(() => setCount(targetNum))
       }
       return
     }

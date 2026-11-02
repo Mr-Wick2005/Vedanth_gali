@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProfileRow } from '@/types/database'
 import { updateProfile } from '@/lib/actions/profile'
-import { ImageUploader } from '@/components/admin/ImageUploader'
-import { FileUploader } from '@/components/admin/FileUploader'
+import { MediaUploader } from '@/components/admin/MediaUploader'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface ProfileFormProps {
   initialProfile: ProfileRow | null
@@ -13,6 +13,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialProfile }: ProfileFormProps) {
   const router = useRouter()
+  const toast = useToast()
   const [formData, setFormData] = useState({
     id: initialProfile?.id || '',
     name: initialProfile?.name || '',
@@ -28,10 +29,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   })
 
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
@@ -41,7 +38,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     try {
       const res = await updateProfile({
@@ -52,19 +48,13 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       })
 
       if (res.success) {
-        setStatusMessage({
-          type: 'success',
-          text: 'Profile updated successfully and changes revalidated.',
-        })
+        toast.success('Profile updated successfully and changes revalidated.', 'Profile Saved')
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to update profile.' })
+        toast.error(res.error || 'Failed to update profile.', 'Update Error')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'An error occurred.',
-      })
+      toast.error(err instanceof Error ? err.message : 'An error occurred.', 'Error')
     } finally {
       setSaving(false)
     }
@@ -72,17 +62,6 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
 
       {/* Basic Info */}
       <div className="border-border bg-surface space-y-4 rounded-lg border p-6">
@@ -190,16 +169,19 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="border-border bg-surface rounded-lg border p-6">
           <h2 className="font-display text-text mb-4 text-lg font-semibold">Portrait Avatar</h2>
-          <ImageUploader
+          <MediaUploader
             folder="avatar"
-            label="Upload Avatar Image"
+            mode="image"
+            aspectRatioPreset="1:1"
+            label="Upload Avatar Photograph"
+            helpText="Authentic profile photograph for hero and about sections (PNG, WebP, AVIF up to 15MB)"
             initialUrl={formData.avatar_url}
             initialAlt={formData.avatar_alt}
             onUploadComplete={(meta) => {
               setFormData((prev) => ({
                 ...prev,
                 avatar_url: meta.url,
-                avatar_alt: meta.alt,
+                avatar_alt: meta.alt || '',
               }))
             }}
             onRemove={() => {
@@ -214,13 +196,16 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
         <div className="border-border bg-surface rounded-lg border p-6">
           <h2 className="font-display text-text mb-4 text-lg font-semibold">Résumé Document</h2>
-          <FileUploader
-            label="Upload Résumé (PDF only)"
+          <MediaUploader
+            folder="resume"
+            mode="pdf"
+            label="Upload Résumé (PDF)"
+            helpText="Official curriculum vitae for recruiter download (PDF up to 20MB)"
             initialUrl={formData.resume_url}
-            onUploadComplete={(url) => {
+            onUploadComplete={(meta) => {
               setFormData((prev) => ({
                 ...prev,
-                resume_url: url,
+                resume_url: meta.url,
               }))
             }}
             onRemove={() => {

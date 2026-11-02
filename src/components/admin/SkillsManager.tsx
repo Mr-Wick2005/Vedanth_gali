@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SkillRow } from '@/types/database'
 import { saveSkill, deleteSkill, type SkillInput } from '@/lib/actions/skills'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface SkillsManagerProps {
   initialSkills: SkillRow[]
@@ -18,6 +19,7 @@ const CATEGORIES = [
 
 export function SkillsManager({ initialSkills }: SkillsManagerProps) {
   const router = useRouter()
+  const toast = useToast()
   const [skills, setSkills] = useState<SkillRow[]>(initialSkills)
   const [editingItem, setEditingItem] = useState<Partial<SkillRow>>({
     name: '',
@@ -28,10 +30,6 @@ export function SkillsManager({ initialSkills }: SkillsManagerProps) {
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function openCreateModal(defaultCategory?: string) {
     setEditingItem({
@@ -42,13 +40,11 @@ export function SkillsManager({ initialSkills }: SkillsManagerProps) {
       is_published: true,
     })
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function openEditModal(item: SkillRow) {
     setEditingItem(item)
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function closeModal() {
@@ -61,16 +57,16 @@ export function SkillsManager({ initialSkills }: SkillsManagerProps) {
     const res = await deleteSkill(item.id)
     if (res.success) {
       setSkills((prev) => prev.filter((s) => s.id !== item.id))
+      toast.success(`Skill "${item.name}" deleted.`)
       router.refresh()
     } else {
-      alert(`Delete failed: ${res.error}`)
+      toast.error(`Delete failed: ${res.error}`)
     }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     const payload: SkillInput = {
       id: editingItem.id,
@@ -84,17 +80,14 @@ export function SkillsManager({ initialSkills }: SkillsManagerProps) {
     try {
       const res = await saveSkill(payload)
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Skill saved successfully!' })
+        toast.success(`Skill "${payload.name}" saved successfully!`)
         closeModal()
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to save skill.' })
+        toast.error(res.error || 'Failed to save skill.')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Error saving.',
-      })
+      toast.error(err instanceof Error ? err.message : 'Error saving.')
     } finally {
       setSaving(false)
     }
@@ -110,18 +103,6 @@ export function SkillsManager({ initialSkills }: SkillsManagerProps) {
 
   return (
     <div className="space-y-6">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
-
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">

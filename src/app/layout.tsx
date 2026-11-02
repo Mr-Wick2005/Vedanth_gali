@@ -21,10 +21,68 @@ const monoFont = Geist_Mono({
   display: 'swap',
 })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://vedanthgali.dev'
+
 export const metadata: Metadata = {
-  title: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
+    template: '%s | Vedanth Gali',
+  },
   description:
-    'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building web platforms and leading technical events.',
+    'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms and leading technical events in Mumbai.',
+  keywords: [
+    'Vedanth Gali',
+    'Frontend Developer',
+    'Full-Stack Developer',
+    'Software Engineer',
+    'React',
+    'Next.js',
+    'TypeScript',
+    'Supabase',
+    'Tailwind CSS',
+    'Mumbai Developer',
+    'ICSICE 2026',
+    'The Rkive',
+  ],
+  authors: [{ name: 'Vedanth Gali', url: siteUrl }],
+  creator: 'Vedanth Gali',
+  publisher: 'Vedanth Gali',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    title: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
+    description:
+      'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
+    siteName: 'Vedanth Gali Portfolio',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Vedanth Gali — Frontend & Full-Stack Developer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
+    description:
+      'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

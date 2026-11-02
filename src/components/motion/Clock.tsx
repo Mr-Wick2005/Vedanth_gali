@@ -22,12 +22,17 @@ export function Clock({ showPrefix = true, className = '' }: ClockProps) {
       })
     }
 
-    setTime(getISTString())
+    const timer = setTimeout(() => {
+      setTime(getISTString())
+    }, 0)
     const interval = setInterval(() => {
       setTime(getISTString())
     }, 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(timer)
+      clearInterval(interval)
+    }
   }, [])
 
   return (

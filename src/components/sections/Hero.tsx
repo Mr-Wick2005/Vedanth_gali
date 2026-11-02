@@ -48,6 +48,10 @@ export function Hero({ profile, socialLinks }: HeroProps) {
   const [phraseIndex, setPhraseIndex] = useState(0)
   const shouldReduceMotion = useReducedMotion()
 
+  const nameParts = (profile?.name || 'VEDANTH GALI').trim().split(/\s+/)
+  const firstName = nameParts[0]?.toUpperCase() || 'VEDANTH'
+  const lastName = nameParts.slice(1).join(' ').toUpperCase() || 'GALI'
+
   const availabilityText = profile?.availability_text || 'Available for Roles'
   const shortBio =
     profile?.short_bio ||
@@ -71,8 +75,8 @@ export function Hero({ profile, socialLinks }: HeroProps) {
       />
 
       {/* Main 2-Column Content Stage */}
-      <div className="mx-auto my-auto w-full max-w-[1320px] px-6 py-4 sm:py-6">
-        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-6">
+      <div className="mx-auto my-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16 py-4 sm:py-6 lg:py-8">
+        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
           
           {/* Left Column: Balanced Editorial Content (7 cols on desktop) */}
           <div className="z-20 lg:col-span-7">
@@ -89,12 +93,12 @@ export function Hero({ profile, socialLinks }: HeroProps) {
             </div>
 
             {/* Kinetic Hero Display Headline (Properly Proportioned, No Wrapping) */}
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black uppercase leading-[0.94] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black uppercase leading-[0.92] tracking-tight">
               <span className="block whitespace-nowrap text-white">
-                <SplitText text="VEDANTH" delay={0.15} stagger={0.03} />
+                <SplitText text={firstName} delay={0.15} stagger={0.03} />
               </span>
               <span className="block whitespace-nowrap text-violet-400 drop-shadow-[0_0_35px_rgba(139,92,246,0.5)]">
-                <SplitText text="GALI" delay={0.35} stagger={0.035} />
+                <SplitText text={lastName} delay={0.35} stagger={0.035} />
               </span>
             </h1>
 
@@ -107,7 +111,7 @@ export function Hero({ profile, socialLinks }: HeroProps) {
             </div>
 
             {/* Concise Bio */}
-            <p className="mt-3 max-w-lg text-xs sm:text-sm leading-relaxed text-muted/90">
+            <p className="mt-3 max-w-xl text-xs sm:text-sm md:text-base leading-relaxed text-muted/90">
               {shortBio}
             </p>
 
@@ -140,7 +144,7 @@ export function Hero({ profile, socialLinks }: HeroProps) {
             <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-white/[0.08] pt-4 font-mono text-xs text-muted">
               <Clock showPrefix className="text-xs" />
               <span>•</span>
-              <span>Mumbai University '27</span>
+              <span>Mumbai University &apos;27</span>
               <span>•</span>
               <div className="flex items-center gap-3">
                 {socialLinks.map((link) => (
@@ -162,11 +166,11 @@ export function Hero({ profile, socialLinks }: HeroProps) {
 
           </div>
 
-          {/* Right Column: Balanced Cutout with Energy Ring Centered on Head (5 cols) */}
+          {/* Right Column: Original Cinematic Cutout with Energy Ring (5 cols) */}
           <div className="relative flex items-center justify-center lg:col-span-5 lg:justify-end">
             <HeroPortrait
               avatarUrl="/images/vedanth-cutout.webp"
-              avatarAlt={profile?.avatar_alt || profile?.name}
+              avatarAlt={profile?.name || 'Vedanth Gali'}
             />
           </div>
 
@@ -174,7 +178,7 @@ export function Hero({ profile, socialLinks }: HeroProps) {
       </div>
 
       {/* Bottom Dual-Row Tech Marquee Strip (Compact & Clean) */}
-      <div className="relative z-10 border-t border-white/[0.08] bg-black/85 backdrop-blur-md py-2 overflow-hidden">
+      <div className="relative z-10 w-full max-w-full border-t border-white/[0.08] bg-black/85 backdrop-blur-md py-2 overflow-hidden">
         {/* Row 1 */}
         <Marquee direction="left" speed={28} gap="2.5rem" className="text-[11px] font-mono text-muted uppercase">
           {MARQUEE_ROW_1.map((item, idx) => (

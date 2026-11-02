@@ -8,6 +8,8 @@ import {
   deleteCertification,
   type CertificationInput,
 } from '@/lib/actions/certifications'
+import { MediaUploader } from '@/components/admin/MediaUploader'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface CertificationsManagerProps {
   initialCertifications: CertificationRow[]
@@ -15,21 +17,19 @@ interface CertificationsManagerProps {
 
 export function CertificationsManager({ initialCertifications }: CertificationsManagerProps) {
   const router = useRouter()
+  const toast = useToast()
   const [list, setList] = useState<CertificationRow[]>(initialCertifications)
   const [editingItem, setEditingItem] = useState<Partial<CertificationRow>>({
     title: '',
     issuer: '',
     year: new Date().getFullYear(),
     credential_url: '',
+    image_url: '',
     sort_order: 0,
     is_published: true,
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function openCreateModal() {
     setEditingItem({
@@ -37,17 +37,16 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
       issuer: '',
       year: new Date().getFullYear(),
       credential_url: '',
+      image_url: '',
       sort_order: list.length + 1,
       is_published: true,
     })
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function openEditModal(item: CertificationRow) {
     setEditingItem(item)
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function closeModal() {
@@ -60,16 +59,16 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
     const res = await deleteCertification(item.id)
     if (res.success) {
       setList((prev) => prev.filter((c) => c.id !== item.id))
+      toast.success(`Deleted "${item.title}" successfully.`)
       router.refresh()
     } else {
-      alert(`Delete failed: ${res.error}`)
+      toast.error(`Delete failed: ${res.error}`)
     }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     const payload: CertificationInput = {
       id: editingItem.id,
@@ -85,17 +84,14 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
     try {
       const res = await saveCertification(payload)
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Certification saved successfully!' })
+        toast.success(`Saved credential "${payload.title}" successfully!`)
         closeModal()
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to save certification.' })
+        toast.error(res.error || 'Failed to save certification.')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Error saving.',
-      })
+      toast.error(err instanceof Error ? err.message : 'Error saving.')
     } finally {
       setSaving(false)
     }
@@ -103,18 +99,6 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
 
   return (
     <div className="space-y-6">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
-
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">
@@ -281,20 +265,27 @@ export function CertificationsManager({ initialCertifications }: CertificationsM
                 />
               </div>
 
-              <div>
-                <label className="text-muted mb-1 block font-mono text-xs">Certificate Background Image URL</label>
-                <input
-                  type="text"
-                  value={editingItem.image_url || ''}
-                  onChange={(e) =>
-                    setEditingItem((prev) => ({ ...prev, image_url: e.target.value }))
-                  }
-                  placeholder="https://... or /certificates/my-cert.png"
-                  className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
+              <div className="border-border bg-background/50 rounded-lg border p-4">
+                <MediaUploader
+                  folder="certifications"
+                  mode="any"
+                  aspectRatioPreset="free"
+                  label="Certificate Image or PDF Proof (Optional)"
+                  helpText="Upload credential certificate image (PNG, JPEG, WebP) or official PDF evaluation report"
+                  initialUrl={editingItem.image_url}
+                  onUploadComplete={(meta) => {
+                    setEditingItem((prev) => ({
+                      ...prev,
+                      image_url: meta.url,
+                    }))
+                  }}
+                  onRemove={() => {
+                    setEditingItem((prev) => ({
+                      ...prev,
+                      image_url: '',
+                    }))
+                  }}
                 />
-                <span className="text-muted/60 mt-1 block font-mono text-[10px]">
-                  Displayed as the background of the certificate card with a dark overlay.
-                </span>
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">

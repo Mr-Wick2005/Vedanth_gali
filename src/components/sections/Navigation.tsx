@@ -22,8 +22,11 @@ export function Navigation({ resumeUrl }: NavigationProps) {
   ]
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 border-b border-white/[0.08] bg-black/50 backdrop-blur-md transition-all">
-      <div className="mx-auto flex max-w-[1320px] items-center justify-between px-6 py-4">
+    <header
+      style={{ viewTransitionName: 'site-navigation' }}
+      className="fixed top-0 right-0 left-0 z-50 border-b border-white/[0.08] bg-black/50 backdrop-blur-md transition-all"
+    >
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between px-6 sm:px-10 lg:px-14 xl:px-16 py-4">
         {/* Monogram Brandmark */}
         <Link
           href="/"

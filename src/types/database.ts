@@ -233,6 +233,9 @@ export interface Database {
           highlights?: string[]
           logo_url?: string | null
           logo_alt?: string | null
+          image_url?: string | null
+          image_alt?: string | null
+          gallery?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string
@@ -250,6 +253,9 @@ export interface Database {
           highlights?: string[]
           logo_url?: string | null
           logo_alt?: string | null
+          image_url?: string | null
+          image_alt?: string | null
+          gallery?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string

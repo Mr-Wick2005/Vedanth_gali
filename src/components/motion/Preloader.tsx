@@ -14,42 +14,49 @@ export function Preloader({ onComplete }: PreloaderProps) {
   const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
-    // Only show once per session and if reduced motion is not requested
-    const hasSeen = sessionStorage.getItem('vg_preloader_seen')
-    if (hasSeen || shouldReduceMotion) {
-      setIsDone(true)
-      onComplete?.()
-      return
-    }
-
-    setShouldRender(true)
-
-    let current = 0
-    const duration = 1200 // ms
-    const startTime = performance.now()
-
-    const frame = (time: number) => {
-      const elapsed = time - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      // Quintic ease out
-      const eased = 1 - Math.pow(1 - progress, 4)
-      current = Math.floor(eased * 100)
-      setCount(current)
-
-      if (progress < 1) {
-        requestAnimationFrame(frame)
-      } else {
-        setCount(100)
-        setTimeout(() => {
-          sessionStorage.setItem('vg_preloader_seen', 'true')
-          setIsDone(true)
-          onComplete?.()
-        }, 250)
+    let animId: number
+    const timer = setTimeout(() => {
+      // Only show once per session and if reduced motion is not requested
+      const hasSeen = typeof window !== 'undefined' ? sessionStorage.getItem('vg_preloader_seen') : true
+      if (hasSeen || shouldReduceMotion) {
+        setIsDone(true)
+        onComplete?.()
+        return
       }
-    }
 
-    const animId = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(animId)
+      setShouldRender(true)
+
+      let current = 0
+      const duration = 1200 // ms
+      const startTime = performance.now()
+
+      const frame = (time: number) => {
+        const elapsed = time - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        // Quintic ease out
+        const eased = 1 - Math.pow(1 - progress, 4)
+        current = Math.floor(eased * 100)
+        setCount(current)
+
+        if (progress < 1) {
+          animId = requestAnimationFrame(frame)
+        } else {
+          setCount(100)
+          setTimeout(() => {
+            sessionStorage.setItem('vg_preloader_seen', 'true')
+            setIsDone(true)
+            onComplete?.()
+          }, 250)
+        }
+      }
+
+      animId = requestAnimationFrame(frame)
+    }, 0)
+
+    return () => {
+      clearTimeout(timer)
+      cancelAnimationFrame(animId)
+    }
   }, [shouldReduceMotion, onComplete])
 
   if (!shouldRender || isDone) {
@@ -69,7 +76,7 @@ export function Preloader({ onComplete }: PreloaderProps) {
           {/* Top minimal status */}
           <div className="flex w-full max-w-5xl items-center justify-between font-mono text-xs uppercase tracking-widest text-muted">
             <span>VEDANTH GALI</span>
-            <span>PORTFOLIO '27</span>
+            <span>PORTFOLIO &apos;27</span>
           </div>
 
           {/* Center Monogram */}

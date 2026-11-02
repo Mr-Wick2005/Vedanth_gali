@@ -1,7 +1,19 @@
 'use client'
 
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useSyncExternalStore } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+
+function subscribeCoarse(callback: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  const mql = window.matchMedia('(pointer: coarse)')
+  mql.addEventListener('change', callback)
+  return () => mql.removeEventListener('change', callback)
+}
+
+function getCoarseSnapshot() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(pointer: coarse)').matches
+}
 
 interface TiltProps {
   children: React.ReactNode
@@ -21,12 +33,8 @@ export function Tilt({
   const ref = useRef<HTMLDivElement>(null)
   const [rotation, setRotation] = useState({ x: 0, y: 0 })
   const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 })
-  const [isTouch, setIsTouch] = useState(false)
+  const isTouch = useSyncExternalStore(subscribeCoarse, getCoarseSnapshot, () => false)
   const shouldReduceMotion = useReducedMotion()
-
-  useEffect(() => {
-    setIsTouch(window.matchMedia('(pointer: coarse)').matches)
-  }, [])
 
   if (shouldReduceMotion || isTouch) {
     return <div className={className}>{children}</div>

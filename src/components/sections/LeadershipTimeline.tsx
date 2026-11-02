@@ -43,7 +43,7 @@ export function LeadershipTimeline({ experience }: LeadershipTimelineProps) {
   })
 
   return (
-    <div ref={containerRef} className="relative ml-2 space-y-16 pl-8 sm:ml-4 sm:pl-12">
+    <div ref={containerRef} className="relative ml-2 space-y-16 pl-8 sm:ml-4 sm:pl-12 w-full max-w-full">
       {/* Background Static Line Track */}
       <div
         aria-hidden="true"
@@ -148,39 +148,46 @@ export function LeadershipTimeline({ experience }: LeadershipTimelineProps) {
 
                 {/* Photo Slot or Typographic Monogram Graphic (4 cols) */}
                 <div className="lg:col-span-4">
-                  {role.image_url ? (
+                  {(role.image_url || role.logo_url) ? (
                     <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-white/10 bg-black">
                       <Image
-                        src={role.image_url}
-                        alt={role.image_alt || role.title}
+                        src={(role.image_url || role.logo_url)!}
+                        alt={role.image_alt || role.logo_alt || role.title}
                         fill
                         sizes="300px"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
                   ) : (
-                    /* Tasteful Typographic Geometric Placeholder (Never a broken box) */
-                    <div className="relative flex aspect-[4/3] w-full flex-col justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#12122d] to-[#070714] p-5 shadow-inner">
+                    /* Tasteful Typographic Geometric Placeholder with Operational Scope */
+                    <div className="relative flex aspect-[4/3] w-full flex-col justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-gradient-to-br from-[#121226] via-[#090918] to-[#04040c] p-5 shadow-inner">
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-violet-400">
-                          LEADERSHIP VERIFICATION
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-violet-400 font-semibold">
+                          VERIFIED RESPONSIBILITY
                         </span>
-                        <div className="flex gap-1">
-                          <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-                          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          <span className="font-mono text-[9px] text-emerald-400">ACTIVE</span>
                         </div>
                       </div>
 
                       <div className="my-auto py-2">
-                        <span className="font-display text-4xl sm:text-5xl font-black text-stroke text-white/10">
-                          {role.company.slice(0, 3).toUpperCase()}
+                        <span className="font-display text-3xl sm:text-4xl font-black text-stroke text-white/20 uppercase tracking-tight">
+                          {role.company.includes('ICSICE')
+                            ? 'ICSICE 26'
+                            : role.company.includes('Hackathon')
+                            ? 'HACK CLUB'
+                            : 'TECH HEAD'}
                         </span>
-                        <p className="mt-1 font-mono text-[11px] text-muted truncate">
+                        <p className="mt-1 font-mono text-xs text-text-lilac font-medium truncate">
                           {role.title}
+                        </p>
+                        <p className="mt-0.5 font-mono text-[10px] text-muted truncate">
+                          {role.company}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[9px] text-white/30">
+                      <div className="flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[9px] text-white/40">
                         <span>EST. {year}</span>
                         <span>MUMBAI, IN</span>
                       </div>

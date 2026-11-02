@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ExperienceRow } from '@/types/database'
 import { saveExperience, deleteExperience, type ExperienceInput } from '@/lib/actions/experience'
+import { MediaUploader } from '@/components/admin/MediaUploader'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface ExperienceManagerProps {
   initialExperience: ExperienceRow[]
@@ -11,6 +13,7 @@ interface ExperienceManagerProps {
 
 export function ExperienceManager({ initialExperience }: ExperienceManagerProps) {
   const router = useRouter()
+  const toast = useToast()
   const [experienceList, setExperienceList] = useState<ExperienceRow[]>(initialExperience)
   const [editingItem, setEditingItem] = useState<Partial<ExperienceRow>>({
     company: '',
@@ -21,16 +24,14 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
     org_url: '',
     description: '',
     highlights: [],
+    image_url: '',
+    image_alt: '',
     sort_order: 0,
     is_published: true,
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [highlightsInput, setHighlightsInput] = useState('')
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function openCreateModal() {
     setEditingItem({
@@ -42,19 +43,19 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       org_url: '',
       description: '',
       highlights: [],
+      image_url: '',
+      image_alt: '',
       sort_order: experienceList.length + 1,
       is_published: true,
     })
     setHighlightsInput('')
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function openEditModal(item: ExperienceRow) {
     setEditingItem(item)
     setHighlightsInput((item.highlights || []).join('\n'))
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function closeModal() {
@@ -68,16 +69,16 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
     const res = await deleteExperience(item.id)
     if (res.success) {
       setExperienceList((prev) => prev.filter((e) => e.id !== item.id))
+      toast.success(`Removed "${item.title}" successfully.`)
       router.refresh()
     } else {
-      alert(`Delete failed: ${res.error}`)
+      toast.error(`Delete failed: ${res.error}`)
     }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     const highlightsArray = highlightsInput
       .split('\n')
@@ -94,6 +95,10 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       org_url: editingItem.org_url || null,
       description: editingItem.description || '',
       highlights: highlightsArray,
+      image_url: editingItem.image_url || editingItem.logo_url || null,
+      image_alt: editingItem.image_alt || editingItem.logo_alt || null,
+      logo_url: editingItem.image_url || editingItem.logo_url || null,
+      logo_alt: editingItem.image_alt || editingItem.logo_alt || null,
       sort_order: Number(editingItem.sort_order || 0),
       is_published: editingItem.is_published ?? true,
     }
@@ -101,17 +106,14 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
     try {
       const res = await saveExperience(payload)
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Experience saved successfully!' })
+        toast.success(`Saved position "${payload.title}" successfully!`)
         closeModal()
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to save experience.' })
+        toast.error(res.error || 'Failed to save experience.')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Error saving.',
-      })
+      toast.error(err instanceof Error ? err.message : 'Error saving.')
     } finally {
       setSaving(false)
     }
@@ -119,18 +121,6 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
 
   return (
     <div className="space-y-6">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
-
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">
@@ -339,6 +329,37 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                   onChange={(e) => setHighlightsInput(e.target.value)}
                   placeholder="Led technical team of 15 engineers&#10;Organized full-day hackathon with 300+ attendees"
                   className="border-border bg-background text-text focus:border-accent w-full resize-y rounded border px-3 py-2 font-mono text-sm text-xs focus:outline-none"
+                />
+              </div>
+
+              {/* Event / Leadership Organization Visual Proof */}
+              <div className="border-border bg-background/50 rounded-lg border p-4">
+                <MediaUploader
+                  folder="experience"
+                  mode="image"
+                  label="Event / Organization Photograph (Optional)"
+                  helpText="Upload authentic workshop, conference, or podium photograph (PNG, WebP, AVIF up to 15MB)"
+                  aspectRatioPreset="4:3"
+                  initialUrl={editingItem.image_url || editingItem.logo_url}
+                  initialAlt={editingItem.image_alt || editingItem.logo_alt}
+                  onUploadComplete={(meta) => {
+                    setEditingItem((prev) => ({
+                      ...prev,
+                      image_url: meta.url,
+                      image_alt: meta.alt,
+                      logo_url: meta.url,
+                      logo_alt: meta.alt,
+                    }))
+                  }}
+                  onRemove={() => {
+                    setEditingItem((prev) => ({
+                      ...prev,
+                      image_url: '',
+                      image_alt: '',
+                      logo_url: '',
+                      logo_alt: '',
+                    }))
+                  }}
                 />
               </div>
 

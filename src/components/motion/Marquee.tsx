@@ -23,7 +23,7 @@ export function Marquee({
 
   return (
     <div
-      className={`group relative flex overflow-hidden whitespace-nowrap ${className}`}
+      className={`group relative flex w-full max-w-full overflow-hidden whitespace-nowrap ${className}`}
       style={{ maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)' }}
     >
       <style>{`
@@ -37,7 +37,7 @@ export function Marquee({
         }
       `}</style>
       <div
-        className="flex shrink-0 items-center will-change-transform"
+        className="flex shrink-0 items-center will-change-transform max-w-none"
         style={{
           gap,
           animation: `${animationName} ${speed}s linear infinite`,

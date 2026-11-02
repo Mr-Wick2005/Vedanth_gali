@@ -9,6 +9,16 @@ import type {
   SkillRow,
   SocialLinkRow,
 } from '@/types/database'
+import {
+  FALLBACK_PROFILE,
+  FALLBACK_SITE_SETTINGS,
+  FALLBACK_PROJECTS,
+  FALLBACK_EXPERIENCE,
+  FALLBACK_EDUCATION,
+  FALLBACK_CERTIFICATIONS,
+  FALLBACK_SKILLS,
+  FALLBACK_SOCIAL_LINKS,
+} from './fallback'
 
 /**
  * Checks if Supabase credentials exist in the runtime environment.
@@ -21,24 +31,36 @@ export function hasSupabaseEnv(): boolean {
 }
 
 /**
+ * Helper to group skills by category preserving order
+ */
+function groupSkills(skills: SkillRow[]): Record<string, SkillRow[]> {
+  const grouped: Record<string, SkillRow[]> = {}
+  for (const skill of skills) {
+    const cat = skill.category
+    if (!grouped[cat]) grouped[cat] = []
+    grouped[cat].push(skill)
+  }
+  return grouped
+}
+
+/**
  * Fetch profile row (single row)
  */
 export async function getProfile(): Promise<ProfileRow | null> {
-  if (!hasSupabaseEnv()) return null
+  if (!hasSupabaseEnv()) return FALLBACK_PROFILE
 
   try {
     const supabase = createPublicClient()
     const { data, error } = await supabase.from('profile').select('*').limit(1).maybeSingle()
 
     if (error) {
-      console.error('Error fetching profile:', error.message)
-      return null
+      console.warn('Supabase profile query notice:', error.message)
+      return FALLBACK_PROFILE
     }
 
-    return data
-  } catch (err) {
-    console.error('Unexpected error in getProfile:', err)
-    return null
+    return data || FALLBACK_PROFILE
+  } catch {
+    return FALLBACK_PROFILE
   }
 }
 
@@ -46,21 +68,20 @@ export async function getProfile(): Promise<ProfileRow | null> {
  * Fetch site settings (single row)
  */
 export async function getSiteSettings(): Promise<SiteSettingsRow | null> {
-  if (!hasSupabaseEnv()) return null
+  if (!hasSupabaseEnv()) return FALLBACK_SITE_SETTINGS
 
   try {
     const supabase = createPublicClient()
     const { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle()
 
     if (error) {
-      console.error('Error fetching site_settings:', error.message)
-      return null
+      console.warn('Supabase site_settings query notice:', error.message)
+      return FALLBACK_SITE_SETTINGS
     }
 
-    return data
-  } catch (err) {
-    console.error('Unexpected error in getSiteSettings:', err)
-    return null
+    return data || FALLBACK_SITE_SETTINGS
+  } catch {
+    return FALLBACK_SITE_SETTINGS
   }
 }
 
@@ -68,7 +89,7 @@ export async function getSiteSettings(): Promise<SiteSettingsRow | null> {
  * Fetch published projects, ordered by sort_order ascending
  */
 export async function getProjects(options?: { featuredOnly?: boolean }): Promise<ProjectRow[]> {
-  if (!hasSupabaseEnv()) return []
+  if (!hasSupabaseEnv()) return FALLBACK_PROJECTS
 
   try {
     const supabase = createPublicClient()
@@ -84,15 +105,14 @@ export async function getProjects(options?: { featuredOnly?: boolean }): Promise
 
     const { data, error } = await query
 
-    if (error) {
-      console.error('Error fetching projects:', error.message)
-      return []
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase projects query notice:', error.message)
+      return FALLBACK_PROJECTS
     }
 
-    return data ?? []
-  } catch (err) {
-    console.error('Unexpected error in getProjects:', err)
-    return []
+    return data
+  } catch {
+    return FALLBACK_PROJECTS
   }
 }
 
@@ -100,7 +120,9 @@ export async function getProjects(options?: { featuredOnly?: boolean }): Promise
  * Fetch single project by its unique slug
  */
 export async function getProjectBySlug(slug: string): Promise<ProjectRow | null> {
-  if (!hasSupabaseEnv()) return null
+  if (!hasSupabaseEnv()) {
+    return FALLBACK_PROJECTS.find((p) => p.slug === slug) || null
+  }
 
   try {
     const supabase = createPublicClient()
@@ -110,15 +132,14 @@ export async function getProjectBySlug(slug: string): Promise<ProjectRow | null>
       .eq('slug', slug)
       .maybeSingle()
 
-    if (error) {
-      console.error(`Error fetching project for slug "${slug}":`, error.message)
-      return null
+    if (error || !data) {
+      if (error) console.warn(`Supabase project query notice (${slug}):`, error.message)
+      return FALLBACK_PROJECTS.find((p) => p.slug === slug) || null
     }
 
     return data
-  } catch (err) {
-    console.error(`Unexpected error in getProjectBySlug (${slug}):`, err)
-    return null
+  } catch {
+    return FALLBACK_PROJECTS.find((p) => p.slug === slug) || null
   }
 }
 
@@ -126,7 +147,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectRow | null>
  * Fetch published work experience / leadership roles
  */
 export async function getExperience(): Promise<ExperienceRow[]> {
-  if (!hasSupabaseEnv()) return []
+  if (!hasSupabaseEnv()) return FALLBACK_EXPERIENCE
 
   try {
     const supabase = createPublicClient()
@@ -136,15 +157,14 @@ export async function getExperience(): Promise<ExperienceRow[]> {
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching experience:', error.message)
-      return []
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase experience query notice:', error.message)
+      return FALLBACK_EXPERIENCE
     }
 
-    return data ?? []
-  } catch (err) {
-    console.error('Unexpected error in getExperience:', err)
-    return []
+    return data
+  } catch {
+    return FALLBACK_EXPERIENCE
   }
 }
 
@@ -152,7 +172,7 @@ export async function getExperience(): Promise<ExperienceRow[]> {
  * Fetch published education records
  */
 export async function getEducation(): Promise<EducationRow[]> {
-  if (!hasSupabaseEnv()) return []
+  if (!hasSupabaseEnv()) return FALLBACK_EDUCATION
 
   try {
     const supabase = createPublicClient()
@@ -162,15 +182,14 @@ export async function getEducation(): Promise<EducationRow[]> {
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching education:', error.message)
-      return []
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase education query notice:', error.message)
+      return FALLBACK_EDUCATION
     }
 
-    return data ?? []
-  } catch (err) {
-    console.error('Unexpected error in getEducation:', err)
-    return []
+    return data
+  } catch {
+    return FALLBACK_EDUCATION
   }
 }
 
@@ -178,7 +197,7 @@ export async function getEducation(): Promise<EducationRow[]> {
  * Fetch published certifications
  */
 export async function getCertifications(): Promise<CertificationRow[]> {
-  if (!hasSupabaseEnv()) return []
+  if (!hasSupabaseEnv()) return FALLBACK_CERTIFICATIONS
 
   try {
     const supabase = createPublicClient()
@@ -188,15 +207,14 @@ export async function getCertifications(): Promise<CertificationRow[]> {
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching certifications:', error.message)
-      return []
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase certifications query notice:', error.message)
+      return FALLBACK_CERTIFICATIONS
     }
 
-    return data ?? []
-  } catch (err) {
-    console.error('Unexpected error in getCertifications:', err)
-    return []
+    return data
+  } catch {
+    return FALLBACK_CERTIFICATIONS
   }
 }
 
@@ -204,7 +222,7 @@ export async function getCertifications(): Promise<CertificationRow[]> {
  * Fetch published skills, grouped by category preserving sort_order
  */
 export async function getSkillsGrouped(): Promise<Record<string, SkillRow[]>> {
-  if (!hasSupabaseEnv()) return {}
+  if (!hasSupabaseEnv()) return groupSkills(FALLBACK_SKILLS)
 
   try {
     const supabase = createPublicClient()
@@ -214,23 +232,14 @@ export async function getSkillsGrouped(): Promise<Record<string, SkillRow[]>> {
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching skills:', error.message)
-      return {}
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase skills query notice:', error.message)
+      return groupSkills(FALLBACK_SKILLS)
     }
 
-    const skills = (data ?? []) as SkillRow[]
-    const grouped: Record<string, SkillRow[]> = {}
-    for (const skill of skills) {
-      const cat = skill.category
-      if (!grouped[cat]) grouped[cat] = []
-      grouped[cat].push(skill)
-    }
-
-    return grouped
-  } catch (err) {
-    console.error('Unexpected error in getSkillsGrouped:', err)
-    return {}
+    return groupSkills(data as SkillRow[])
+  } catch {
+    return groupSkills(FALLBACK_SKILLS)
   }
 }
 
@@ -238,7 +247,7 @@ export async function getSkillsGrouped(): Promise<Record<string, SkillRow[]>> {
  * Fetch published social links (including Phone)
  */
 export async function getSocialLinks(): Promise<SocialLinkRow[]> {
-  if (!hasSupabaseEnv()) return []
+  if (!hasSupabaseEnv()) return FALLBACK_SOCIAL_LINKS
 
   try {
     const supabase = createPublicClient()
@@ -248,14 +257,13 @@ export async function getSocialLinks(): Promise<SocialLinkRow[]> {
       .eq('is_published', true)
       .order('sort_order', { ascending: true })
 
-    if (error) {
-      console.error('Error fetching social links:', error.message)
-      return []
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase social_links query notice:', error.message)
+      return FALLBACK_SOCIAL_LINKS
     }
 
-    return data ?? []
-  } catch (err) {
-    console.error('Unexpected error in getSocialLinks:', err)
-    return []
+    return data
+  } catch {
+    return FALLBACK_SOCIAL_LINKS
   }
 }

@@ -5,15 +5,23 @@
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
   --color-surface-hover: var(--color-surface-hover);
+  --color-surface-overlay: var(--color-surface-overlay);
+  --color-surface-glass: var(--color-surface-glass);
   --color-border: var(--color-border);
   --color-border-hover: var(--color-border-hover);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-accent: var(--color-hairline-accent);
   --color-text: var(--color-text);
   --color-text-lilac: var(--color-text-lilac);
   --color-muted: var(--color-muted);
+  --color-text-dim: var(--color-text-dim);
   --color-accent: var(--color-accent);
   --color-violet-glow: var(--color-violet-glow);
   --color-cyan-glow: var(--color-cyan-glow);
   --color-accent-subtle: var(--color-accent-subtle);
+  --color-status-success: var(--color-status-success);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-danger: var(--color-status-danger);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
@@ -32,6 +40,9 @@ html {
   background-color: var(--color-background);
   color: var(--color-text);
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
 }
 
 body {
@@ -44,6 +55,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+  position: relative;
 }
 
 ::selection {
@@ -65,6 +79,21 @@ body {
 .text-stroke-violet {
   -webkit-text-stroke: 1.5px rgba(167, 139, 250, 0.6);
   color: transparent;
+}
+
+/* View Transitions (Shared Element Morphing & Persistent Isolation) */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-group(site-navigation) {
+  animation: none;
 }
 
 /* Reduced Motion Overrides */

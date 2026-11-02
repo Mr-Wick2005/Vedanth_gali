@@ -64,11 +64,11 @@ export function BigTypeBand() {
   return (
     <section
       ref={containerRef}
-      className="relative overflow-hidden border-y border-white/[0.08] bg-black py-8 sm:py-12 select-none"
+      className="relative overflow-hidden w-full max-w-full border-y border-white/[0.08] bg-black py-8 sm:py-12 select-none"
     >
       <div
         ref={trackRef}
-        className="flex whitespace-nowrap will-change-transform"
+        className="flex whitespace-nowrap will-change-transform max-w-none"
         style={{ width: 'fit-content' }}
       >
         <span className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-white/90">

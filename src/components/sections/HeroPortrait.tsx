@@ -1,9 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'motion/react'
 import { HeroRingWrapper } from '@/components/three/HeroRingWrapper'
+
+function subscribeCoarse(callback: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  const mql = window.matchMedia('(pointer: coarse)')
+  mql.addEventListener('change', callback)
+  return () => mql.removeEventListener('change', callback)
+}
+
+function getCoarseSnapshot() {
+  if (typeof window === 'undefined') return true
+  return window.matchMedia('(pointer: coarse)').matches
+}
 
 interface HeroPortraitProps {
   avatarUrl?: string | null
@@ -13,13 +25,11 @@ interface HeroPortraitProps {
 export function HeroPortrait({ avatarUrl, avatarAlt = 'Vedanth Gali' }: HeroPortraitProps) {
   const imageSrc = avatarUrl || '/images/vedanth-cutout.webp'
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const [isTouch, setIsTouch] = useState(true)
+  const isTouch = useSyncExternalStore(subscribeCoarse, getCoarseSnapshot, () => true)
   const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
-    const isCoarse = window.matchMedia('(pointer: coarse)').matches
-    setIsTouch(isCoarse)
-    if (isCoarse || shouldReduceMotion) return
+    if (isTouch || shouldReduceMotion) return
 
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window
@@ -30,10 +40,10 @@ export function HeroPortrait({ avatarUrl, avatarAlt = 'Vedanth Gali' }: HeroPort
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [shouldReduceMotion])
+  }, [isTouch, shouldReduceMotion])
 
   return (
-    <div className="relative flex w-full max-w-[440px] items-center justify-center lg:justify-end">
+    <div className="relative flex w-full max-w-[460px] xl:max-w-[520px] 2xl:max-w-[560px] items-center justify-center lg:justify-end">
       {/* Layer 1: Ambient radial background glow centered on head */}
       <div
         aria-hidden="true"
@@ -49,7 +59,7 @@ export function HeroPortrait({ avatarUrl, avatarAlt = 'Vedanth Gali' }: HeroPort
         aria-hidden="true"
         className="pointer-events-none absolute top-[38%] left-1/2 -z-10 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
       >
-        <div className="relative h-[380px] w-[380px] sm:h-[420px] sm:w-[420px] lg:h-[450px] lg:w-[450px]">
+        <div className="relative h-[380px] w-[380px] sm:h-[420px] sm:w-[420px] lg:h-[450px] lg:w-[450px] xl:h-[480px] xl:w-[480px]">
           <HeroRingWrapper />
         </div>
       </div>
@@ -71,11 +81,11 @@ export function HeroPortrait({ avatarUrl, avatarAlt = 'Vedanth Gali' }: HeroPort
         <Image
           src={imageSrc}
           alt={avatarAlt || 'Vedanth Gali portrait'}
-          width={380}
-          height={425}
+          width={440}
+          height={490}
           priority
-          sizes="(max-width: 640px) 260px, (max-width: 1024px) 340px, 400px"
-          className="h-[300px] w-auto max-w-full object-contain sm:h-[360px] md:h-[400px] lg:h-[440px] xl:h-[460px] drop-shadow-[0_15px_35px_rgba(0,0,0,0.9)]"
+          sizes="(max-width: 640px) 260px, (max-width: 1024px) 360px, 500px"
+          className="h-[300px] w-auto max-w-full object-contain sm:h-[360px] md:h-[400px] lg:h-[450px] xl:h-[490px] 2xl:h-[530px] drop-shadow-[0_15px_35px_rgba(0,0,0,0.9)]"
         />
       </motion.div>
     </div>

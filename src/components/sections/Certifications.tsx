@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import type { CertificationRow } from '@/types/database'
 import { Icon } from '@/components/ui/icon'
 import { Tilt } from '@/components/motion/Tilt'
+import { CredentialModal } from '@/components/ui/CredentialModal'
 
 interface CertificationsProps {
   certifications: CertificationRow[]
@@ -12,185 +13,160 @@ interface CertificationsProps {
 
 function getIssuerIcon(issuer: string): string {
   const low = issuer.toLowerCase()
-  if (low.includes('oracle')) return 'oracle'
-  if (low.includes('aws') || low.includes('amazon')) return 'aws'
-  if (low.includes('coursera')) return 'coursera'
-  if (low.includes('google')) return 'google'
+  if (low.includes('iit') || low.includes('nptel')) return 'award'
+  if (low.includes('edupyramids') || low.includes('sine')) return 'cpu'
+  if (low.includes('forage') || low.includes('tata')) return 'sparkles'
+  if (low.includes('linux')) return 'terminal'
+  if (low.includes('oracle')) return 'database'
+  if (low.includes('aws') || low.includes('amazon')) return 'server'
+  if (low.includes('google')) return 'globe'
   return 'award'
 }
 
 export function Certifications({ certifications }: CertificationsProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  // Check scroll boundary status
-  const updateScrollState = () => {
-    const el = scrollContainerRef.current
-    if (!el) return
-    const { scrollLeft, scrollWidth, clientWidth } = el
-    setCanScrollLeft(scrollLeft > 10)
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10)
-
-    // Calculate approx index of card in view
-    const itemWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 16 : 300
-    const currentIdx = Math.round(scrollLeft / itemWidth)
-    setActiveIndex(currentIdx)
-  }
-
-  useEffect(() => {
-    updateScrollState()
-    const el = scrollContainerRef.current
-    if (!el) return
-    el.addEventListener('scroll', updateScrollState, { passive: true })
-    window.addEventListener('resize', updateScrollState)
-    return () => {
-      el.removeEventListener('scroll', updateScrollState)
-      window.removeEventListener('resize', updateScrollState)
-    }
-  }, [certifications])
-
-  const scrollByDirection = (dir: 'left' | 'right') => {
-    const el = scrollContainerRef.current
-    if (!el) return
-    const itemWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 16 : 300
-    const scrollAmount = dir === 'left' ? -itemWidth * 2 : itemWidth * 2
-    el.scrollBy({ left: scrollAmount, behavior: 'smooth' })
-  }
+  const [selectedCert, setSelectedCert] = useState<CertificationRow | null>(null)
 
   return (
-    <section id="credentials" className="relative border-t border-white/[0.08] bg-[#06060f] py-16 sm:py-20">
+    <section id="credentials" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#06060f] py-16 sm:py-24">
       {/* Background ambient lighting */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/2 left-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-violet-600/[0.06] blur-[140px]"
       />
 
-      <div className="mx-auto max-w-[1320px] px-6">
-        {/* Section Header with Navigation Controls */}
-        <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
+        {/* Section Header */}
+        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
               [ 08 — CREDENTIALS & CERTIFICATIONS ]
             </span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-white">
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white">
               Verified <br />
               <span className="text-violet-400">Qualifications.</span>
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
-            <p className="hidden max-w-sm font-mono text-xs text-muted leading-relaxed sm:block">
-              Coursework validations, cloud certifications, and technical simulations.
-            </p>
-
-            {/* Slideshow Arrows (Slides 4-card window smoothly) */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => scrollByDirection('left')}
-                disabled={!canScrollLeft}
-                aria-label="Previous certificates"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition-all hover:border-violet-500/50 hover:bg-violet-600/20 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <Icon name="arrow-left" size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollByDirection('right')}
-                disabled={!canScrollRight}
-                aria-label="Next certificates"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white transition-all hover:border-violet-500/50 hover:bg-violet-600/20 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <Icon name="arrow-right" size={14} />
-              </button>
-            </div>
-          </div>
+          <p className="max-w-md font-mono text-xs sm:text-sm text-muted leading-relaxed">
+            Directly displaying verified academic coursework certifications, competitive industry simulations, and engineering credentials.
+          </p>
         </div>
 
-        {/* 4-Card Windowed Scroller / Slideshow */}
-        <div
-          ref={scrollContainerRef}
-          data-cursor="drag"
-          className="flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-none snap-x snap-mandatory cursor-grab active:cursor-grabbing"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
+        {/* Direct Certificate Showcase Grid (Thin borders, clear visual certificate presentation) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
           {certifications.map((cert) => {
             const iconName = getIssuerIcon(cert.issuer)
+            const hasImage = Boolean(cert.image_url)
 
             return (
-              <div
-                key={cert.id}
-                className="w-[85%] sm:w-[calc((100%-1rem)/2)] md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3*1rem)/4)] shrink-0 snap-start"
-              >
-                <Tilt maxAngle={6} perspective={700} glare={false}>
-                  <div className="group relative flex h-[210px] sm:h-[225px] flex-col justify-between overflow-hidden rounded-xl border border-white/[0.09] bg-[#0c0c20] p-4 sm:p-5 shadow-[0_12px_30px_rgba(0,0,0,0.6)] transition-all hover:border-violet-500/40 hover:shadow-[0_15px_35px_rgba(139,92,246,0.18)]">
+              <div key={cert.id} className="w-full">
+                <Tilt maxAngle={5} perspective={800} glare={false}>
+                  <div
+                    onClick={() => setSelectedCert(cert)}
+                    data-cursor="view"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-[#0c0c20] shadow-[0_15px_35px_rgba(0,0,0,0.65)] transition-all duration-300 hover:border-violet-500/50 hover:shadow-[0_20px_45px_rgba(139,92,246,0.22)] cursor-pointer"
+                  >
                     
-                    {/* Background Certificate Image (when uploaded) or Architectural Matrix */}
-                    {cert.image_url ? (
-                      <Image
-                        src={cert.image_url}
-                        alt={cert.title}
-                        fill
-                        sizes="(max-width: 640px) 85vw, (max-width: 1024px) 33vw, 25vw"
-                        className="pointer-events-none absolute inset-0 -z-10 object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                      />
-                    ) : (
-                      <div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#8b5cf6_1px,transparent_1px)] [background-size:12px_12px] opacity-15"
-                      />
-                    )}
-
-                    {/* Dark Vignette / Gradient Overlay to ensure crisp readability */}
-                    <div
-                      aria-hidden="true"
-                      className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-black/85 to-black/65 backdrop-blur-[0.5px] transition-all group-hover:from-black/90 group-hover:via-black/75"
-                    />
-
-                    {/* Top Issuer Badge & Year */}
-                    <div>
-                      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-violet-500/25 bg-black/60 text-violet-300 backdrop-blur-sm">
-                            <Icon name={iconName} size={14} colored={true} />
-                          </div>
-                          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-white truncate max-w-[120px]">
-                            {cert.issuer}
-                          </span>
+                    {/* Top Certificate Stage: Direct Certificate Display */}
+                    <div className="relative aspect-[16/11] w-full overflow-hidden border-b border-white/[0.06] bg-black/90 flex items-center justify-center p-2.5">
+                      {hasImage ? (
+                        <div className="relative h-full w-full overflow-hidden rounded-lg">
+                          <Image
+                            src={cert.image_url!}
+                            alt={cert.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            className="object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+                          />
                         </div>
+                      ) : (
+                        /* Tasteful Framed Certificate Document Replica */
+                        <div className="relative flex h-full w-full flex-col justify-between rounded-lg border border-white/10 bg-gradient-to-b from-[#13132b] via-[#090919] to-[#04040d] p-3 text-center shadow-inner">
+                          {/* Inner Guilloche Border */}
+                          <div className="pointer-events-none absolute inset-1 rounded border border-violet-500/20" />
+                          
+                          <div className="flex items-center justify-between z-10">
+                            <span className="font-mono text-[9px] uppercase tracking-wider text-violet-400 font-semibold truncate max-w-[140px]">
+                              {cert.issuer}
+                            </span>
+                            <span className="font-mono text-[9px] text-muted">
+                              {cert.year}
+                            </span>
+                          </div>
 
-                        {cert.year && (
-                          <span className="inline-flex items-center gap-1 rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-muted border border-white/10">
-                            <span>{cert.year}</span>
-                          </span>
-                        )}
+                          <div className="my-auto py-1 z-10">
+                            <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10 text-violet-300 mb-1.5 shadow-[0_0_12px_rgba(139,92,246,0.3)]">
+                              <Icon name={iconName} size={15} />
+                            </div>
+                            <h4 className="font-display text-xs font-bold text-white line-clamp-2 px-1">
+                              {cert.title}
+                            </h4>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[8px] font-mono text-white/30 z-10 border-t border-white/[0.06] pt-1">
+                            <span>VERIFIED RECORD</span>
+                            <span>OFFICIAL CREDENTIAL</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Hover Pill "Click to Inspect" */}
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 backdrop-blur-[1px] transition-opacity duration-300 group-hover:opacity-100">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-3.5 py-1.5 font-mono text-[11px] font-semibold text-white shadow-[0_0_20px_rgba(139,92,246,0.6)]">
+                          <Icon name="search" size={12} />
+                          <span>Inspect Full Certificate</span>
+                        </span>
                       </div>
-
-                      {/* Certificate Title */}
-                      <h3 className="mt-3 line-clamp-2 font-display text-xs sm:text-sm font-bold leading-snug text-text-lilac group-hover:text-white transition-colors">
-                        {cert.title}
-                      </h3>
                     </div>
 
-                    {/* Bottom Action */}
-                    <div className="border-t border-white/[0.06] pt-2.5">
-                      {cert.credential_url ? (
-                        <a
-                          href={cert.credential_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-mono text-[11px] font-medium text-violet-400 transition-colors hover:text-violet-300 hover:underline"
+                    {/* Bottom Details Section (Ultra-thin border, clean typography) */}
+                    <div className="flex flex-col justify-between p-4 bg-[#090918]">
+                      <div>
+                        {/* Issuer & Year Tag */}
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-violet-400 truncate max-w-[170px]">
+                            {cert.issuer}
+                          </span>
+                          {cert.year && (
+                            <span className="rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-muted border border-white/10">
+                              {cert.year}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Certificate Title */}
+                        <h3 className="mt-2 line-clamp-2 font-display text-xs sm:text-sm font-bold leading-snug text-text-lilac transition-colors group-hover:text-white">
+                          {cert.title}
+                        </h3>
+                      </div>
+
+                      {/* Action Links */}
+                      <div className="mt-3.5 flex items-center justify-between border-t border-white/[0.06] pt-2.5 font-mono text-[11px]">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedCert(cert)
+                          }}
+                          className="inline-flex items-center gap-1 text-violet-400 transition-colors hover:text-violet-300 hover:underline cursor-pointer"
                         >
-                          <span>View Certificate</span>
+                          <span>View Proof</span>
                           <Icon name="arrow-up-right" size={12} />
-                        </a>
-                      ) : (
-                        <span className="font-mono text-[10px] text-white/30 tracking-wider uppercase">
-                          Credential on record
-                        </span>
-                      )}
+                        </button>
+
+                        {cert.credential_url && (
+                          <a
+                            href={cert.credential_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-white/40 hover:text-white transition-colors"
+                            aria-label={`Verify ${cert.title} online`}
+                          >
+                            Verify ↗
+                          </a>
+                        )}
+                      </div>
                     </div>
 
                   </div>
@@ -200,26 +176,8 @@ export function Certifications({ certifications }: CertificationsProps) {
           })}
         </div>
 
-        {/* Footer Rail Info / Slide Indicators */}
-        <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-muted/60">
-          <span className="flex items-center gap-1.5">
-            <Icon name="arrow-right" size={11} />
-            <span>Horizontal slideshow • {certifications.length} credentials total</span>
-          </span>
-
-          <div className="flex items-center gap-1">
-            {certifications.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1 rounded-full transition-all ${
-                  Math.min(activeIndex, certifications.length - 1) === i
-                    ? 'w-4 bg-violet-400'
-                    : 'w-1 bg-white/20'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        {/* In-App Credential Verification Lightbox Modal */}
+        <CredentialModal cert={selectedCert} onClose={() => setSelectedCert(null)} />
 
       </div>
     </section>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EducationRow } from '@/types/database'
 import { saveEducation, deleteEducation, type EducationInput } from '@/lib/actions/education'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface EducationManagerProps {
   initialEducation: EducationRow[]
@@ -11,6 +12,7 @@ interface EducationManagerProps {
 
 export function EducationManager({ initialEducation }: EducationManagerProps) {
   const router = useRouter()
+  const toast = useToast()
   const [list, setList] = useState<EducationRow[]>(initialEducation)
   const [editingItem, setEditingItem] = useState<Partial<EducationRow>>({
     institution: '',
@@ -24,10 +26,6 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
   })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function openCreateModal() {
     setEditingItem({
@@ -41,13 +39,11 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
       is_published: true,
     })
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function openEditModal(item: EducationRow) {
     setEditingItem(item)
     setIsModalOpen(true)
-    setStatusMessage(null)
   }
 
   function closeModal() {
@@ -60,16 +56,16 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
     const res = await deleteEducation(item.id)
     if (res.success) {
       setList((prev) => prev.filter((e) => e.id !== item.id))
+      toast.success(`Education record deleted.`)
       router.refresh()
     } else {
-      alert(`Delete failed: ${res.error}`)
+      toast.error(`Delete failed: ${res.error}`)
     }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     const payload: EducationInput = {
       id: editingItem.id,
@@ -86,17 +82,14 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
     try {
       const res = await saveEducation(payload)
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Education saved successfully!' })
+        toast.success(`Saved education at "${payload.institution}" successfully!`)
         closeModal()
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to save education.' })
+        toast.error(res.error || 'Failed to save education.')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Error saving.',
-      })
+      toast.error(err instanceof Error ? err.message : 'Error saving.')
     } finally {
       setSaving(false)
     }
@@ -104,18 +97,6 @@ export function EducationManager({ initialEducation }: EducationManagerProps) {
 
   return (
     <div className="space-y-6">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
-
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">

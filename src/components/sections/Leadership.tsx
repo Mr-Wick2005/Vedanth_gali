@@ -8,18 +8,19 @@ interface LeadershipProps {
 
 export function Leadership({ experience }: LeadershipProps) {
   return (
-    <section id="leadership" className="border-border/40 border-t py-24">
-      <div className="mx-auto max-w-[1200px] px-6">
+    <section id="leadership" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#06060f] py-16 sm:py-24">
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         <SectionReveal>
           <div className="mb-12">
-            <span className="text-accent font-mono text-xs tracking-widest uppercase">
-              03 — LEADERSHIP
+            <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
+              [ 07 — POSITIONS OF RESPONSIBILITY ]
             </span>
-            <h2 className="font-display text-text mt-2 text-2xl font-bold tracking-tight sm:text-4xl">
-              Positions of Responsibility
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white">
+              Leadership & <br />
+              <span className="text-violet-400">Event Direction.</span>
             </h2>
-            <p className="text-muted mt-2 max-w-lg font-mono text-xs">
-              Guiding technical events, organizing hackathons, and managing creative direction.
+            <p className="mt-2 max-w-lg font-mono text-xs sm:text-sm text-muted leading-relaxed">
+              International conference coordination, creative brand direction, and competitive hackathon leadership with verified outcomes.
             </p>
           </div>
         </SectionReveal>

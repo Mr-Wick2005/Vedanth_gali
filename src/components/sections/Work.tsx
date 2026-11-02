@@ -21,26 +21,26 @@ const FALLBACK_SCREENSHOTS: Record<string, string> = {
 
 export function Work({ projects }: WorkProps) {
   return (
-    <section id="work" className="relative border-t border-white/[0.08] bg-[#06060f] py-16 sm:py-20">
+    <section id="work" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#06060f] py-16 sm:py-24">
       {/* Subtle ambient lighting behind section */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/4 left-0 h-[450px] w-[450px] -translate-x-1/2 rounded-full bg-violet-600/[0.06] blur-[140px]"
       />
 
-      <div className="mx-auto max-w-[1320px] px-6">
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         {/* Section Header */}
         <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
               [ 04 — SELECTED WORK ]
             </span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-white">
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white">
               Featured <br />
               <span className="text-violet-400">Platforms.</span>
             </h2>
           </div>
-          <p className="max-w-md font-mono text-xs text-muted leading-relaxed">
+          <p className="max-w-md font-mono text-xs sm:text-sm text-muted leading-relaxed">
             Production-ready digital systems, university platforms, and deep learning architectures built with TypeScript, Next.js, and Supabase.
           </p>
         </div>
@@ -65,9 +65,9 @@ export function Work({ projects }: WorkProps) {
               <div
                 key={project.id}
                 style={{ top: stickyTop }}
-                className="lg:sticky w-full rounded-2xl border border-white/[0.1] bg-[#0c0c1e] p-6 sm:p-8 shadow-[0_25px_60px_rgba(0,0,0,0.85)] transition-all duration-300"
+                className="lg:sticky w-full rounded-2xl border border-white/[0.1] bg-[#0c0c1e] p-6 sm:p-8 lg:p-10 shadow-[0_25px_60px_rgba(0,0,0,0.85)] transition-all duration-300"
               >
-                <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
+                <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
                   
                   {/* Left Column: Metadata & Details (6 cols) */}
                   <div className="flex flex-col justify-between lg:col-span-6">
@@ -78,13 +78,29 @@ export function Work({ projects }: WorkProps) {
                           {formattedIndex}
                         </span>
 
-                        <div className="flex items-center gap-3 font-mono text-xs text-muted">
-                          {project.role && (
+                        <div className="flex items-center gap-2 font-mono text-xs text-muted">
+                          {project.slug === 'the-rkive' ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              FLAGSHIP DEPLOYMENT
+                            </span>
+                          ) : project.slug === 'escape-placement-cell' ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-300 uppercase tracking-wider">
+                              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                              INTERACTIVE SIMULATION
+                            </span>
+                          ) : project.slug === 'plant-leaf-disease-detection' ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-violet-300 uppercase tracking-wider">
+                              <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+                              ML RESEARCH
+                            </span>
+                          ) : (
                             <span className="inline-flex items-center gap-1 text-text-lilac">
                               <Icon name="briefcase" size={13} className="text-violet-400" />
                               <span>{project.role}</span>
                             </span>
                           )}
+
                           {project.year && (
                             <>
                               <span className="text-white/20">•</span>
@@ -98,7 +114,10 @@ export function Work({ projects }: WorkProps) {
                       </div>
 
                       {/* Project Title */}
-                      <h3 className="mt-3 font-display text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white">
+                      <h3
+                        style={{ viewTransitionName: `project-title-${project.slug}` }}
+                        className="mt-3 font-display text-xl sm:text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-white"
+                      >
                         <Link
                           href={`/work/${project.slug}`}
                           className="hover:text-violet-300 transition-colors"
@@ -218,9 +237,22 @@ export function Work({ projects }: WorkProps) {
                           <div className="w-8" />
                         </div>
 
-                        {/* Image Preview / Dynamic Project Canvas */}
-                        <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
-                          {imageSrc ? (
+                        {/* Image Preview / Dynamic Video or Project Canvas */}
+                        <div
+                          style={{ viewTransitionName: `project-cover-${project.slug}` }}
+                          className="relative aspect-[16/10] w-full overflow-hidden bg-black"
+                        >
+                          {project.cover_video_url ? (
+                            <video
+                              src={project.cover_video_url}
+                              poster={project.cover_video_poster_url || imageSrc}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover/mockup:scale-105"
+                            />
+                          ) : imageSrc ? (
                             <Image
                               src={imageSrc}
                               alt={project.cover_image_alt || project.title}

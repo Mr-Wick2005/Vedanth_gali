@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { SocialLinkRow } from '@/types/database'
 import { Icon } from '@/components/ui/icon'
 import { Clock } from '@/components/motion/Clock'
@@ -33,24 +34,27 @@ export function Footer({
   }
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/[0.08] bg-black pt-24 pb-12 text-white">
+    <footer className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-black pt-24 pb-12 text-white">
       {/* Background ambient spotlight */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-1/2 h-[450px] w-[80vw] -translate-x-1/2 rounded-full bg-violet-600/[0.06] blur-[120px]"
+        className="pointer-events-none absolute bottom-0 left-1/2 h-[450px] w-full max-w-[1200px] -translate-x-1/2 rounded-full bg-violet-600/[0.06] blur-[120px]"
       />
 
-      <div className="relative mx-auto max-w-[1320px] px-6">
+      <div className="relative mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         {/* Kinetic CTA Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
               [ 09 — NEXT STEPS ]
             </span>
-            <h2 className="mt-3 font-display text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95]">
-              Let's Build <br />
+            <h2 className="mt-3 font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase tracking-tight text-white leading-[0.95]">
+              Let&apos;s Build <br />
               <span className="text-violet-400">Together.</span>
             </h2>
+            <p className="mt-4 font-mono text-xs sm:text-sm text-muted leading-relaxed max-w-lg">
+              Open to full-time Frontend &amp; Full-Stack engineering opportunities. Available to discuss systems architecture, production web builds, and technical creative direction.
+            </p>
           </div>
 
           {/* Action Buttons */}
@@ -133,16 +137,26 @@ export function Footer({
         </div>
 
         {/* Oversized Wordmark */}
-        <div className="select-none pt-16 pb-8 text-center">
-          <span className="block font-display text-[13vw] font-black uppercase leading-none tracking-tighter text-stroke text-white/5 opacity-40">
+        <div className="select-none pt-16 pb-8 text-center w-full max-w-full overflow-hidden">
+          <span className="block font-display text-[12vw] 2xl:text-[180px] font-black uppercase leading-none tracking-tighter text-stroke text-white/5 opacity-40">
             VEDANTH GALI
           </span>
         </div>
 
-        {/* Minimal Copyright */}
+        {/* Minimal Copyright with Discreet Admin Portal Link */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 text-center font-mono text-xs text-muted/60 sm:flex-row sm:text-left">
           <p>© {currentYear} Vedanth Gali. Built with Next.js 16, React 19, TypeScript, and Supabase.</p>
-          <p className="text-[11px] text-white/30">Crafted with precision • Mumbai, Maharashtra</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] text-white/30">Crafted with precision • Mumbai, Maharashtra</p>
+            <span className="text-white/10" aria-hidden="true">•</span>
+            <Link
+              href="/admin"
+              className="text-[11px] text-white/20 transition-colors hover:text-violet-400 focus:text-violet-400 focus:outline-none"
+              title="Admin Portal"
+            >
+              admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

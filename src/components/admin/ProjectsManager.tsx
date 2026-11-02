@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import type { ProjectRow } from '@/types/database'
 import {
   saveProject,
@@ -9,7 +10,9 @@ import {
   toggleProjectPublished,
   type ProjectInput,
 } from '@/lib/actions/projects'
-import { ImageUploader } from '@/components/admin/ImageUploader'
+import { MediaUploader } from '@/components/admin/MediaUploader'
+import { useToast } from '@/components/admin/ToastContext'
+import { Icon } from '@/components/ui/icon'
 
 interface ProjectsManagerProps {
   initialProjects: ProjectRow[]
@@ -20,17 +23,21 @@ interface MetricItem {
   value: string
 }
 
+interface GalleryItemState {
+  url: string
+  alt?: string
+  caption?: string
+}
+
 export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
   const router = useRouter()
+  const toast = useToast()
   const [projects, setProjects] = useState<ProjectRow[]>(initialProjects)
   const [editingProject, setEditingProject] = useState<Partial<ProjectRow> | null>(null)
   const [stackInput, setStackInput] = useState('')
   const [metricsList, setMetricsList] = useState<MetricItem[]>([])
+  const [galleryList, setGalleryList] = useState<GalleryItemState[]>([])
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function openCreateModal() {
     setEditingProject({
@@ -47,13 +54,15 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
       repo_url: '',
       cover_image_url: '',
       cover_image_alt: '',
+      cover_video_url: '',
+      cover_video_poster_url: '',
       featured: false,
       sort_order: projects.length + 1,
       is_published: true,
     })
     setStackInput('')
     setMetricsList([])
-    setStatusMessage(null)
+    setGalleryList([])
   }
 
   function openEditModal(project: ProjectRow) {
@@ -63,13 +72,18 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
       ? (project.metrics as unknown as MetricItem[])
       : []
     setMetricsList(parsedMetrics)
-    setStatusMessage(null)
+
+    const parsedGallery = Array.isArray(project.gallery)
+      ? (project.gallery as unknown as GalleryItemState[])
+      : []
+    setGalleryList(parsedGallery)
   }
 
   function closeModal() {
     setEditingProject(null)
     setStackInput('')
     setMetricsList([])
+    setGalleryList([])
   }
 
   function addMetricRow() {
@@ -91,6 +105,22 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
     setMetricsList((prev) => prev.filter((_, i) => i !== index))
   }
 
+  function removeGalleryItem(index: number) {
+    setGalleryList((prev) => prev.filter((_, i) => i !== index))
+    toast.info('Removed image from gallery preview.')
+  }
+
+  function updateGalleryItemCaption(index: number, caption: string) {
+    setGalleryList((prev) => {
+      const copy = [...prev]
+      const current = copy[index]
+      if (current) {
+        copy[index] = { ...current, caption, alt: caption }
+      }
+      return copy
+    })
+  }
+
   async function handleTogglePublish(project: ProjectRow) {
     const nextState = !project.is_published
     const res = await toggleProjectPublished(project.id, nextState, project.slug)
@@ -98,9 +128,13 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
       setProjects((prev) =>
         prev.map((p) => (p.id === project.id ? { ...p, is_published: nextState } : p)),
       )
+      toast.success(
+        `Project "${project.title}" is now ${nextState ? 'published' : 'hidden'}.`,
+        'Visibility Updated',
+      )
       router.refresh()
     } else {
-      alert(`Failed to update status: ${res.error}`)
+      toast.error(`Failed to update status: ${res.error}`)
     }
   }
 
@@ -110,9 +144,10 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
     const res = await deleteProject(project.id, project.slug)
     if (res.success) {
       setProjects((prev) => prev.filter((p) => p.id !== project.id))
+      toast.success(`Deleted "${project.title}" permanently.`, 'Project Deleted')
       router.refresh()
     } else {
-      alert(`Delete failed: ${res.error}`)
+      toast.error(`Delete failed: ${res.error}`)
     }
   }
 
@@ -120,7 +155,6 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
     e.preventDefault()
     if (!editingProject) return
     setSaving(true)
-    setStatusMessage(null)
 
     const stackArray = stackInput
       .split(',')
@@ -142,7 +176,9 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
       repo_url: editingProject.repo_url || null,
       cover_image_url: editingProject.cover_image_url || null,
       cover_image_alt: editingProject.cover_image_alt || null,
-      gallery: editingProject.gallery || [],
+      cover_video_url: editingProject.cover_video_url || null,
+      cover_video_poster_url: editingProject.cover_video_poster_url || null,
+      gallery: galleryList.filter((g) => g.url && g.url.trim()),
       metrics: metricsList.filter((m) => m.label.trim() && m.value.trim()),
       featured: Boolean(editingProject.featured),
       sort_order: Number(editingProject.sort_order || 0),
@@ -152,17 +188,14 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
     try {
       const res = await saveProject(payload)
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Project saved successfully!' })
+        toast.success(`Project "${payload.title}" saved successfully!`, 'Project Saved')
         closeModal()
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to save project.' })
+        toast.error(res.error || 'Failed to save project.')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Error saving.',
-      })
+      toast.error(err instanceof Error ? err.message : 'Error saving.')
     } finally {
       setSaving(false)
     }
@@ -170,18 +203,6 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
 
   return (
     <div className="space-y-6">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
-
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">
@@ -503,10 +524,13 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
 
               {/* Cover Image Uploader */}
               <div className="border-border bg-background/50 rounded-lg border p-4">
-                <h3 className="font-display text-text mb-3 text-sm font-semibold">Cover Image</h3>
-                <ImageUploader
+                <MediaUploader
                   folder="projects"
-                  label="Upload Project Cover"
+                  mode="image"
+                  aspectRatioPreset="16:9"
+                  label="Project Cover Image *"
+                  helpText="Primary card banner and case study hero header (PNG, WebP, AVIF up to 15MB)"
+                  requiredAlt={true}
                   initialUrl={editingProject.cover_image_url}
                   initialAlt={editingProject.cover_image_alt}
                   onUploadComplete={(meta) => {
@@ -522,6 +546,124 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
                       cover_image_url: '',
                       cover_image_alt: '',
                     }))
+                  }}
+                />
+              </div>
+
+              {/* Video Cover Preview (Optional) */}
+              <div className="border-border bg-background/50 space-y-4 rounded-lg border p-4">
+                <h3 className="font-display text-text text-sm font-semibold">
+                  Video Cover Loop & Poster (Optional)
+                </h3>
+                
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                  <div>
+                    <MediaUploader
+                      folder="projects/videos"
+                      mode="video"
+                      label="Cover Video (MP4 / WebM)"
+                      helpText="Autoplaying video preview shown on hover (max 25MB)"
+                      initialUrl={editingProject.cover_video_url}
+                      onUploadComplete={(meta) => {
+                        setEditingProject((prev) => ({
+                          ...prev,
+                          cover_video_url: meta.url,
+                        }))
+                      }}
+                      onRemove={() => {
+                        setEditingProject((prev) => ({
+                          ...prev,
+                          cover_video_url: '',
+                        }))
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <MediaUploader
+                      folder="projects/posters"
+                      mode="image"
+                      label="Video Poster Image"
+                      helpText="Fallback thumbnail displayed before video loads"
+                      initialUrl={editingProject.cover_video_poster_url}
+                      onUploadComplete={(meta) => {
+                        setEditingProject((prev) => ({
+                          ...prev,
+                          cover_video_poster_url: meta.url,
+                        }))
+                      }}
+                      onRemove={() => {
+                        setEditingProject((prev) => ({
+                          ...prev,
+                          cover_video_poster_url: '',
+                        }))
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Gallery Manager (Multi-Image Showcase) */}
+              <div className="border-border bg-background/50 space-y-4 rounded-lg border p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display text-text text-sm font-semibold">
+                      Case Study Gallery Images
+                    </h3>
+                    <p className="text-muted font-mono text-[11px]">
+                      {galleryList.length} image{galleryList.length === 1 ? '' : 's'} attached to this case study.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Existing Gallery Grid */}
+                {galleryList.length > 0 && (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                    {galleryList.map((item, gIdx) => (
+                      <div
+                        key={gIdx}
+                        className="group relative overflow-hidden rounded-lg border border-white/10 bg-[#060614] p-2"
+                      >
+                        <div className="relative aspect-video w-full overflow-hidden rounded border border-white/10 bg-black">
+                          <Image
+                            src={item.url}
+                            alt={item.alt || item.caption || `Gallery ${gIdx + 1}`}
+                            fill
+                            sizes="200px"
+                            className="object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryItem(gIdx)}
+                            className="absolute top-1.5 right-1.5 rounded-full bg-red-600/80 p-1 text-white hover:bg-red-500 transition-colors"
+                            aria-label="Remove image from gallery"
+                          >
+                            <Icon name="x" size={12} />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={item.caption || item.alt || ''}
+                          onChange={(e) => updateGalleryItemCaption(gIdx, e.target.value)}
+                          placeholder="Image caption / alt text..."
+                          className="mt-2 w-full rounded border border-white/10 bg-surface px-2 py-1 font-mono text-[11px] text-white focus:border-violet-500 focus:outline-none"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add New Gallery Image via MediaUploader */}
+                <MediaUploader
+                  folder="projects/gallery"
+                  mode="image"
+                  label="Add Image to Gallery"
+                  helpText="Drop screenshots, interface flows, or feature captures to attach to this project"
+                  onUploadComplete={(meta) => {
+                    setGalleryList((prev) => [
+                      ...prev,
+                      { url: meta.url, alt: meta.alt || '', caption: meta.alt || '' },
+                    ])
                   }}
                 />
               </div>

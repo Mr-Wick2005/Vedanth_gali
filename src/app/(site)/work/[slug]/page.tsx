@@ -8,6 +8,8 @@ import { CountUp } from '@/components/motion/CountUp'
 import { Reveal } from '@/components/motion/Reveal'
 import { ImageReveal } from '@/components/motion/ImageReveal'
 import { Magnetic } from '@/components/motion/Magnetic'
+import { ProjectArchitectureDiagram } from '@/components/sections/ProjectArchitectureDiagram'
+import { ProjectEngineeringDetails } from '@/components/sections/ProjectEngineeringDetails'
 
 interface WorkPageProps {
   params: Promise<{ slug: string }>
@@ -64,8 +66,30 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
     FALLBACK_SCREENSHOTS[project.slug] ||
     '/placeholders/the-rkive.png'
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://vedanthgali.dev'
+  const projectJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: project.title,
+    description: project.summary,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web Browser',
+    url: `${siteUrl}/work/${project.slug}`,
+    image: coverImage.startsWith('http') ? coverImage : `${siteUrl}${coverImage}`,
+    author: {
+      '@type': 'Person',
+      name: 'Vedanth Gali',
+      url: siteUrl,
+    },
+    keywords: (project.stack || []).join(', '),
+  }
+
   return (
     <article className="min-h-screen bg-black text-white pt-24 pb-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
+      />
       {/* Top Navigation Bar */}
       <div className="mx-auto max-w-[1320px] px-6">
         <Magnetic strength={0.25}>
@@ -80,15 +104,35 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
 
         {/* Hero Title & Overview */}
         <header className="mt-12 max-w-4xl">
-          <div className="flex items-center gap-3 font-mono text-xs text-muted">
-            <span className="text-violet-400 uppercase tracking-widest">[ CASE STUDY ]</span>
+          <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted">
+            {project.slug === 'the-rkive' ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-emerald-300 font-semibold uppercase tracking-wider text-[11px]">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                FLAGSHIP DIGITAL PUBLISHING PLATFORM
+              </span>
+            ) : project.slug === 'escape-placement-cell' ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-cyan-300 font-semibold uppercase tracking-wider text-[11px]">
+                <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                INTERACTIVE GAMIFIED SIMULATION
+              </span>
+            ) : project.slug === 'plant-leaf-disease-detection' ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-500/10 px-3 py-1 text-violet-300 font-semibold uppercase tracking-wider text-[11px]">
+                <span className="h-2 w-2 rounded-full bg-violet-400" />
+                MACHINE LEARNING RESEARCH
+              </span>
+            ) : (
+              <span className="text-violet-400 uppercase tracking-widest">[ CASE STUDY ]</span>
+            )}
             <span>•</span>
             <span>{project.role || 'Full-Stack Developer'}</span>
             <span>•</span>
             <span>{project.year || 2024}</span>
           </div>
 
-          <h1 className="mt-4 font-display text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95]">
+          <h1
+            style={{ viewTransitionName: `project-title-${project.slug}` }}
+            className="mt-4 font-display text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95]"
+          >
             {project.title}
           </h1>
 
@@ -146,16 +190,32 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
                 <div className="w-12" />
               </div>
 
-              {/* Main Image */}
-              <div className="relative aspect-[16/9] w-full bg-black">
-                <Image
-                  src={coverImage}
-                  alt={project.cover_image_alt || project.title}
-                  fill
-                  priority
-                  sizes="(max-width: 1440px) 100vw, 1320px"
-                  className="object-cover object-top"
-                />
+              {/* Main Media Preview (Video or Image) */}
+              <div
+                style={{ viewTransitionName: `project-cover-${project.slug}` }}
+                className="relative aspect-[16/9] w-full bg-black"
+              >
+                {project.cover_video_url ? (
+                  <video
+                    src={project.cover_video_url}
+                    poster={project.cover_video_poster_url || coverImage}
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-full w-full object-cover object-top"
+                  />
+                ) : (
+                  <Image
+                    src={coverImage}
+                    alt={project.cover_image_alt || project.title}
+                    fill
+                    priority
+                    sizes="(max-width: 1440px) 100vw, 1320px"
+                    className="object-cover object-top"
+                  />
+                )}
               </div>
             </div>
           </ImageReveal>
@@ -267,6 +327,12 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
             </Reveal>
           )}
         </div>
+
+        {/* Visual Architecture & Pipeline Diagram */}
+        <ProjectArchitectureDiagram slug={project.slug} />
+
+        {/* Key Engineering Decisions & Methodology */}
+        <ProjectEngineeringDetails slug={project.slug} />
 
         {/* Next Project Giant Footer */}
         {nextProject && (

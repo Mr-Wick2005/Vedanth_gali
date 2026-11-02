@@ -1,19 +1,29 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useSyncExternalStore } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+
+function subscribeCoarse(callback: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  const mql = window.matchMedia('(pointer: coarse)')
+  mql.addEventListener('change', callback)
+  return () => mql.removeEventListener('change', callback)
+}
+
+function getCoarseSnapshot() {
+  if (typeof window === 'undefined') return true
+  return window.matchMedia('(pointer: coarse)').matches
+}
 
 export function Cursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [cursorState, setCursorState] = useState<'default' | 'link' | 'view' | 'drag'>('default')
   const [isVisible, setIsVisible] = useState(false)
-  const [isTouch, setIsTouch] = useState(true)
+  const isTouch = useSyncExternalStore(subscribeCoarse, getCoarseSnapshot, () => true)
   const shouldReduceMotion = useReducedMotion()
 
   useEffect(() => {
-    const isCoarse = window.matchMedia('(pointer: coarse)').matches
-    setIsTouch(isCoarse)
-    if (isCoarse) return
+    if (isTouch) return
 
     const handleMouseMove = (e: MouseEvent) => {
       setPos({ x: e.clientX, y: e.clientY })
@@ -48,7 +58,7 @@ export function Cursor() {
       window.removeEventListener('mouseover', handleMouseOver)
       document.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [isVisible])
+  }, [isVisible, isTouch])
 
   if (isTouch || shouldReduceMotion || !isVisible) {
     return null

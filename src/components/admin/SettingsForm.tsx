@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SiteSettingsRow } from '@/types/database'
 import { updateSiteSettings } from '@/lib/actions/settings'
-import { ImageUploader } from '@/components/admin/ImageUploader'
+import { MediaUploader } from '@/components/admin/MediaUploader'
+import { useToast } from '@/components/admin/ToastContext'
 
 interface SettingsFormProps {
   initialSettings: SiteSettingsRow | null
@@ -12,6 +13,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const router = useRouter()
+  const toast = useToast()
   const [formData, setFormData] = useState({
     id: initialSettings?.id || '',
     seo_title: initialSettings?.seo_title || '',
@@ -22,10 +24,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   })
 
   const [saving, setSaving] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error'
-    text: string
-  } | null>(null)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
@@ -35,7 +33,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setStatusMessage(null)
 
     try {
       const res = await updateSiteSettings({
@@ -45,16 +42,13 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       })
 
       if (res.success) {
-        setStatusMessage({ type: 'success', text: 'Site settings updated successfully.' })
+        toast.success('Site settings updated successfully.', 'Settings Saved')
         router.refresh()
       } else {
-        setStatusMessage({ type: 'error', text: res.error || 'Failed to update settings.' })
+        toast.error(res.error || 'Failed to update settings.', 'Settings Error')
       }
     } catch (err: unknown) {
-      setStatusMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'An error occurred.',
-      })
+      toast.error(err instanceof Error ? err.message : 'An error occurred.', 'Error')
     } finally {
       setSaving(false)
     }
@@ -62,17 +56,6 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {statusMessage && (
-        <div
-          className={`rounded border p-4 font-mono text-sm ${
-            statusMessage.type === 'success'
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {statusMessage.text}
-        </div>
-      )}
 
       {/* SEO metadata */}
       <div className="border-border bg-surface space-y-4 rounded-lg border p-6">
@@ -129,16 +112,18 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
           Recommended: 1200×630px image for social sharing previews on LinkedIn, Twitter/X, and
           messaging apps.
         </p>
-        <ImageUploader
+        <MediaUploader
           folder="og"
-          label="Upload Open Graph Image"
+          mode="image"
+          label="Open Graph / Social Card Image"
+          helpText="Recommended: 1200×630px image for social sharing previews on LinkedIn, Twitter/X, and messaging apps"
           initialUrl={formData.og_image_url}
           initialAlt={formData.og_image_alt}
           onUploadComplete={(meta) => {
             setFormData((prev) => ({
               ...prev,
               og_image_url: meta.url,
-              og_image_alt: meta.alt,
+              og_image_alt: meta.alt || '',
             }))
           }}
           onRemove={() => {

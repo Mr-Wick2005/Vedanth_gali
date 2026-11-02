@@ -20,6 +20,8 @@ const projectSchema = z.object({
   repo_url: z.string().nullable().optional(),
   cover_image_url: z.string().nullable().optional(),
   cover_image_alt: z.string().nullable().optional(),
+  cover_video_url: z.string().nullable().optional(),
+  cover_video_poster_url: z.string().nullable().optional(),
   gallery: z.any().default([]),
   metrics: z.any().default([]),
   featured: z.boolean().default(false),

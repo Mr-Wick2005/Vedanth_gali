@@ -56,28 +56,67 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
   }
 
   return (
-    <section id="stack" className="relative border-t border-white/[0.08] bg-black py-16 sm:py-20">
+    <section id="stack" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-black py-16 sm:py-24">
       {/* Background ambient lighting */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/[0.06] blur-[140px]"
       />
 
-      <div className="mx-auto max-w-[1320px] px-6">
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         {/* Section Header */}
         <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
-              [ 06 — TECH STACK & CAPABILITIES ]
+              [ 06 — TECH STACK & ARCHITECTURE ]
             </span>
-            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-white">
+            <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white">
               Engineering <br />
-              <span className="text-violet-400">Toolkit.</span>
+              <span className="text-violet-400">Stack.</span>
             </h2>
           </div>
-          <p className="max-w-md font-mono text-xs text-muted leading-relaxed">
-            Verified frameworks, languages, and distributed systems actively used to construct production applications.
+          <p className="max-w-md font-mono text-xs sm:text-sm text-muted leading-relaxed">
+            Distinguishing active production technologies deployed in live builds from foundational academic engineering proficiencies.
           </p>
+        </div>
+
+        {/* Production Stack Spotlight Bar */}
+        <div className="mb-8 rounded-2xl border border-violet-500/25 bg-gradient-to-r from-violet-950/30 via-[#0b0b18] to-cyan-950/20 p-5 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-white">
+                ACTIVE PRODUCTION STACK
+              </span>
+            </div>
+            <span className="font-mono text-[11px] text-muted">
+              Live in deployed platforms: The Rkive, Escape Placement Cell
+            </span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+            {[
+              { name: 'Next.js 14/16', icon: 'nextjs', deployedIn: 'The Rkive' },
+              { name: 'React 19', icon: 'react', deployedIn: 'Escape Placement Cell' },
+              { name: 'TypeScript', icon: 'typescript', deployedIn: 'All Platforms' },
+              { name: 'Supabase & RLS', icon: 'supabase', deployedIn: 'The Rkive & Escape' },
+              { name: 'PostgreSQL', icon: 'postgresql', deployedIn: 'The Rkive DB' },
+              { name: 'Tailwind CSS', icon: 'tailwindcss', deployedIn: 'All Platforms' },
+              { name: 'Python & TF', icon: 'python', deployedIn: 'Plant Disease CNN' },
+              { name: 'Git & Vercel', icon: 'git', deployedIn: 'CI/CD Pipelines' },
+            ].map((tech) => (
+              <div
+                key={tech.name}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black/50 px-3 py-1.5 font-mono text-xs text-text-lilac shadow-sm"
+              >
+                <Icon name={tech.icon} size={14} colored={true} />
+                <span className="font-semibold text-white">{tech.name}</span>
+                <span className="text-[10px] text-violet-400 border-l border-white/10 pl-2">
+                  {tech.deployedIn}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Categories Matrix */}

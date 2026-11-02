@@ -15,6 +15,10 @@ const experienceSchema = z.object({
   org_url: z.string().nullable().optional(),
   description: z.string().min(1, 'Description is required'),
   highlights: z.array(z.string()).default([]),
+  image_url: z.string().nullable().optional(),
+  image_alt: z.string().nullable().optional(),
+  logo_url: z.string().nullable().optional(),
+  logo_alt: z.string().nullable().optional(),
   sort_order: z.number().int().default(0),
   is_published: z.boolean().default(true),
 })
@@ -28,12 +32,37 @@ export async function saveExperience(input: ExperienceInput) {
   }
 
   const supabase = await createClient()
+  const data = { ...parsed.data }
+
+  // Sync image_url and logo_url to ensure compatibility across schema versions
+  if (data.image_url && !data.logo_url) data.logo_url = data.image_url
+  if (data.image_alt && !data.logo_alt) data.logo_alt = data.image_alt
 
   if (parsed.data.id) {
-    const { error } = await supabase.from('experience').update(parsed.data).eq('id', parsed.data.id)
+    let { error } = await supabase.from('experience').update(data).eq('id', parsed.data.id)
+    
+    // Schema mismatch fallback: if database has not yet run redesign migration with image_alt/image_url
+    if (error && (error.message.includes('image_alt') || error.message.includes('image_url'))) {
+      const legacyData = { ...data }
+      delete (legacyData as Record<string, unknown>).image_url
+      delete (legacyData as Record<string, unknown>).image_alt
+      const retry = await supabase.from('experience').update(legacyData).eq('id', parsed.data.id)
+      error = retry.error
+    }
+
     if (error) return { success: false, error: error.message }
   } else {
-    const { error } = await supabase.from('experience').insert(parsed.data)
+    let { error } = await supabase.from('experience').insert(data)
+
+    // Schema mismatch fallback for insert
+    if (error && (error.message.includes('image_alt') || error.message.includes('image_url'))) {
+      const legacyData = { ...data }
+      delete (legacyData as Record<string, unknown>).image_url
+      delete (legacyData as Record<string, unknown>).image_alt
+      const retry = await supabase.from('experience').insert(legacyData)
+      error = retry.error
+    }
+
     if (error) return { success: false, error: error.message }
   }
 

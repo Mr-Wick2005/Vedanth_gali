@@ -1,7 +1,7 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useState, useSyncExternalStore } from 'react'
+import { Suspense, useEffect, useState, useSyncExternalStore, useRef } from 'react'
 import { HeroRingScene } from './HeroRingScene'
 
 function subscribeReducedMotion(callback: () => void) {
@@ -18,6 +18,22 @@ function getReducedMotionSnapshot() {
 
 function getReducedMotionServerSnapshot() {
   return false
+}
+
+function subscribeWindowResize(callback: () => void) {
+  if (typeof window === 'undefined') return () => {}
+  window.addEventListener('resize', callback)
+  return () => window.removeEventListener('resize', callback)
+}
+
+function getLowSpecSnapshot() {
+  if (typeof window === 'undefined') return false
+  const isMobile = window.innerWidth < 768
+  const isLowCpu =
+    typeof navigator !== 'undefined' &&
+    navigator.hardwareConcurrency !== undefined &&
+    navigator.hardwareConcurrency <= 4
+  return isMobile || isLowCpu
 }
 
 // CSS fallback conic gradient ring for mobile / low-spec
@@ -48,29 +64,27 @@ function CssRingFallback() {
 }
 
 export default function HeroRingCanvas() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isTabHidden, setIsTabHidden] = useState(false)
+
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
     getReducedMotionServerSnapshot
   )
+  const isLowSpec = useSyncExternalStore(
+    subscribeWindowResize,
+    getLowSpecSnapshot,
+    () => false
+  )
 
   const [mounted, setMounted] = useState(false)
-  const [isLowSpec, setIsLowSpec] = useState(false)
 
+  // 1. Idle Mount Strategy
   useEffect(() => {
-    // Check low-spec device: mobile width or low CPU concurrency
-    const isMobile = window.innerWidth < 768
-    const isLowCpu =
-      typeof navigator !== 'undefined' &&
-      navigator.hardwareConcurrency !== undefined &&
-      navigator.hardwareConcurrency <= 4
+    if (isLowSpec) return
 
-    if (isMobile || isLowCpu) {
-      setIsLowSpec(true)
-      return
-    }
-
-    // Mount canvas after first paint using requestIdleCallback
     const onIdle = () => setMounted(true)
     if ('requestIdleCallback' in window) {
       const handle = (window as Window).requestIdleCallback(onIdle, { timeout: 1200 })
@@ -79,7 +93,35 @@ export default function HeroRingCanvas() {
       const timer = setTimeout(onIdle, 300)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [isLowSpec])
+
+  // 2. Offscreen & Background Tab Throttling (IntersectionObserver + Page Visibility API)
+  useEffect(() => {
+    if (!mounted) return
+
+    // Page Visibility API
+    const handleVisibilityChange = () => {
+      setIsTabHidden(document.hidden)
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // IntersectionObserver
+    const el = containerRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry?.isIntersecting ?? false)
+      },
+      { threshold: 0.05 }
+    )
+    observer.observe(el)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      observer.disconnect()
+    }
+  }, [mounted])
 
   if (reducedMotion || isLowSpec) {
     return <CssRingFallback />
@@ -89,13 +131,16 @@ export default function HeroRingCanvas() {
     return <CssRingFallback />
   }
 
-  // Cap DPR at 1.75
-  const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 1.75) : 1
+  // Adaptive DPR: 1.25 on tablet/mobile viewport, max 1.5 on desktop
+  const isLargeScreen = typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
+  const maxDpr = isLargeScreen ? 1.5 : 1.25
+  const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, maxDpr) : 1
 
   return (
-    <div className="pointer-events-auto absolute inset-0 h-full w-full">
+    <div ref={containerRef} className="pointer-events-auto absolute inset-0 h-full w-full">
       <Suspense fallback={<CssRingFallback />}>
         <Canvas
+          frameloop={isVisible && !isTabHidden ? 'always' : 'never'}
           camera={{ position: [0, 0, 5.2], fov: 45 }}
           dpr={dpr}
           gl={{

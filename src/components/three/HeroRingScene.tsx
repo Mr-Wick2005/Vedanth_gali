@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useMemo } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 // Precompute 1000 deterministic glowing particles (pure module-level constant)
@@ -29,8 +29,6 @@ export function HeroRingScene() {
   const shard2Ref = useRef<THREE.Mesh>(null)
   const shard3Ref = useRef<THREE.Mesh>(null)
 
-  const { pointer, camera } = useThree()
-
   // Particle geometry
   const particleGeo = useMemo(() => {
     const geo = new THREE.BufferGeometry()
@@ -38,7 +36,7 @@ export function HeroRingScene() {
     return geo
   }, [])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     // 1. Ring rotations
     if (primaryRingRef.current) {
       primaryRingRef.current.rotation.z += delta * 0.14
@@ -66,14 +64,14 @@ export function HeroRingScene() {
 
     // 3. Pointer tilt (ring up to 10 degrees)
     if (groupRef.current) {
-      const targetRotX = pointer.y * -0.17 // ~10 deg
-      const targetRotY = pointer.x * 0.17
+      const targetRotX = state.pointer.y * -0.17 // ~10 deg
+      const targetRotY = state.pointer.x * 0.17
       groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.06)
       groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.06)
     }
 
     // 4. Subtle camera dolly on pointer depth
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, 5.2 - Math.abs(pointer.x) * 0.3, 0.05)
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, 5.2 - Math.abs(state.pointer.x) * 0.3, 0.05)
   })
 
   return (
