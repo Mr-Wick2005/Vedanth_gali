@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import type { ProjectRow } from '@/types/database'
 import {
   saveProject,
@@ -11,8 +10,9 @@ import {
   type ProjectInput,
 } from '@/lib/actions/projects'
 import { MediaUploader } from '@/components/admin/MediaUploader'
+import { MultiImageManager } from '@/components/admin/MultiImageManager'
 import { useToast } from '@/components/admin/ToastContext'
-import { Icon } from '@/components/ui/icon'
+import { extractGalleryImages, type GalleryImage } from '@/lib/images'
 
 interface ProjectsManagerProps {
   initialProjects: ProjectRow[]
@@ -23,12 +23,6 @@ interface MetricItem {
   value: string
 }
 
-interface GalleryItemState {
-  url: string
-  alt?: string
-  caption?: string
-}
-
 export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
   const router = useRouter()
   const toast = useToast()
@@ -36,7 +30,7 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
   const [editingProject, setEditingProject] = useState<Partial<ProjectRow> | null>(null)
   const [stackInput, setStackInput] = useState('')
   const [metricsList, setMetricsList] = useState<MetricItem[]>([])
-  const [galleryList, setGalleryList] = useState<GalleryItemState[]>([])
+  const [galleryList, setGalleryList] = useState<GalleryImage[]>([])
   const [saving, setSaving] = useState(false)
 
   function openCreateModal() {
@@ -72,11 +66,7 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
       ? (project.metrics as unknown as MetricItem[])
       : []
     setMetricsList(parsedMetrics)
-
-    const parsedGallery = Array.isArray(project.gallery)
-      ? (project.gallery as unknown as GalleryItemState[])
-      : []
-    setGalleryList(parsedGallery)
+    setGalleryList(extractGalleryImages(project))
   }
 
   function closeModal() {
@@ -105,21 +95,6 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
     setMetricsList((prev) => prev.filter((_, i) => i !== index))
   }
 
-  function removeGalleryItem(index: number) {
-    setGalleryList((prev) => prev.filter((_, i) => i !== index))
-    toast.info('Removed image from gallery preview.')
-  }
-
-  function updateGalleryItemCaption(index: number, caption: string) {
-    setGalleryList((prev) => {
-      const copy = [...prev]
-      const current = copy[index]
-      if (current) {
-        copy[index] = { ...current, caption, alt: caption }
-      }
-      return copy
-    })
-  }
 
   async function handleTogglePublish(project: ProjectRow) {
     const nextState = !project.is_published
@@ -605,66 +580,21 @@ export function ProjectsManager({ initialProjects }: ProjectsManagerProps) {
 
               {/* Project Gallery Manager (Multi-Image Showcase) */}
               <div className="border-border bg-background/50 space-y-4 rounded-lg border p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-display text-text text-sm font-semibold">
-                      Case Study Gallery Images
-                    </h3>
-                    <p className="text-muted font-mono text-[11px]">
-                      {galleryList.length} image{galleryList.length === 1 ? '' : 's'} attached to this case study.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Existing Gallery Grid */}
-                {galleryList.length > 0 && (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-                    {galleryList.map((item, gIdx) => (
-                      <div
-                        key={gIdx}
-                        className="group relative overflow-hidden rounded-lg border border-white/10 bg-[#060614] p-2"
-                      >
-                        <div className="relative aspect-video w-full overflow-hidden rounded border border-white/10 bg-black">
-                          <Image
-                            src={item.url}
-                            alt={item.alt || item.caption || `Gallery ${gIdx + 1}`}
-                            fill
-                            sizes="200px"
-                            className="object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryItem(gIdx)}
-                            className="absolute top-1.5 right-1.5 rounded-full bg-red-600/80 p-1 text-white hover:bg-red-500 transition-colors"
-                            aria-label="Remove image from gallery"
-                          >
-                            <Icon name="x" size={12} />
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          value={item.caption || item.alt || ''}
-                          onChange={(e) => updateGalleryItemCaption(gIdx, e.target.value)}
-                          placeholder="Image caption / alt text..."
-                          className="mt-2 w-full rounded border border-white/10 bg-surface px-2 py-1 font-mono text-[11px] text-white focus:border-violet-500 focus:outline-none"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Add New Gallery Image via MediaUploader */}
-                <MediaUploader
+                <MultiImageManager
                   folder="projects/gallery"
-                  mode="image"
-                  label="Add Image to Gallery"
-                  helpText="Drop screenshots, interface flows, or feature captures to attach to this project"
-                  onUploadComplete={(meta) => {
-                    setGalleryList((prev) => [
-                      ...prev,
-                      { url: meta.url, alt: meta.alt || '', caption: meta.alt || '' },
-                    ])
+                  images={galleryList}
+                  onChange={(imgs) => {
+                    setGalleryList(imgs)
+                    if (imgs.length > 0 && imgs[0]) {
+                      setEditingProject((prev) => ({
+                        ...prev,
+                        cover_image_url: imgs[0]!.url,
+                        cover_image_alt: imgs[0]!.alt || imgs[0]!.caption || '',
+                      }))
+                    }
                   }}
+                  label="Case Study Gallery & Screenshots"
+                  helpText="Upload multiple interface captures, mobile mockups, and diagrams. Drag items to reorder; click 'Set Cover' to pick the hero image."
                 />
               </div>
 

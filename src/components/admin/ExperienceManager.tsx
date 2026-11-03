@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ExperienceRow } from '@/types/database'
 import { saveExperience, deleteExperience, type ExperienceInput } from '@/lib/actions/experience'
-import { MediaUploader } from '@/components/admin/MediaUploader'
+import { MultiImageManager } from '@/components/admin/MultiImageManager'
 import { useToast } from '@/components/admin/ToastContext'
+import { extractGalleryImages, type GalleryImage } from '@/lib/images'
 
 interface ExperienceManagerProps {
   initialExperience: ExperienceRow[]
@@ -29,6 +30,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
     sort_order: 0,
     is_published: true,
   })
+  const [galleryList, setGalleryList] = useState<GalleryImage[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [highlightsInput, setHighlightsInput] = useState('')
   const [saving, setSaving] = useState(false)
@@ -48,12 +50,14 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       sort_order: experienceList.length + 1,
       is_published: true,
     })
+    setGalleryList([])
     setHighlightsInput('')
     setIsModalOpen(true)
   }
 
   function openEditModal(item: ExperienceRow) {
     setEditingItem(item)
+    setGalleryList(extractGalleryImages(item))
     setHighlightsInput((item.highlights || []).join('\n'))
     setIsModalOpen(true)
   }
@@ -61,6 +65,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
   function closeModal() {
     setIsModalOpen(false)
     setHighlightsInput('')
+    setGalleryList([])
   }
 
   async function handleDelete(item: ExperienceRow) {
@@ -85,6 +90,8 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       .map((h) => h.trim())
       .filter(Boolean)
 
+    const primaryImg = galleryList[0]
+
     const payload: ExperienceInput = {
       id: editingItem.id,
       company: editingItem.company || '',
@@ -95,10 +102,12 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       org_url: editingItem.org_url || null,
       description: editingItem.description || '',
       highlights: highlightsArray,
-      image_url: editingItem.image_url || editingItem.logo_url || null,
-      image_alt: editingItem.image_alt || editingItem.logo_alt || null,
-      logo_url: editingItem.image_url || editingItem.logo_url || null,
-      logo_alt: editingItem.image_alt || editingItem.logo_alt || null,
+      image_url: primaryImg?.url || editingItem.image_url || null,
+      image_alt: primaryImg?.alt || editingItem.image_alt || null,
+      logo_url: primaryImg?.url || editingItem.logo_url || null,
+      logo_alt: primaryImg?.alt || editingItem.logo_alt || null,
+      gallery: galleryList,
+      images: galleryList,
       sort_order: Number(editingItem.sort_order || 0),
       is_published: editingItem.is_published ?? true,
     }
@@ -110,7 +119,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
         closeModal()
         router.refresh()
       } else {
-        toast.error(res.error || 'Failed to save experience.')
+        toast.error(res.error || 'Failed to save experience entry.')
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Error saving.')
@@ -124,18 +133,17 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
       {/* Action Header */}
       <div className="flex items-center justify-between">
         <span className="text-muted font-mono text-xs">
-          Showing {experienceList.length} role{experienceList.length === 1 ? '' : 's'} (ordered by
-          sort_order)
+          Showing {experienceList.length} position{experienceList.length === 1 ? '' : 's'} (ordered by sort_order)
         </span>
         <button
           onClick={openCreateModal}
           className="bg-accent hover:bg-accent-light text-text cursor-pointer rounded px-4 py-2 font-mono text-xs transition-colors"
         >
-          + Add Role / Experience
+          + Add Leadership / Role
         </button>
       </div>
 
-      {/* List Table */}
+      {/* Experience List Table */}
       <div className="border-border bg-surface overflow-hidden rounded-lg border">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -144,7 +152,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                 <th className="px-4 py-3">Order</th>
                 <th className="px-4 py-3">Role & Organization</th>
                 <th className="px-4 py-3">Period</th>
-                <th className="px-4 py-3">Key Highlights</th>
+                <th className="px-4 py-3 text-center">Photos</th>
                 <th className="px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -153,76 +161,76 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
               {experienceList.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-muted px-4 py-8 text-center font-mono text-xs">
-                    No experience records found. Click &ldquo;+ Add Role / Experience&rdquo; to add
-                    one.
+                    No roles found. Click &ldquo;+ Add Leadership / Role&rdquo; to create one.
                   </td>
                 </tr>
               ) : (
-                experienceList.map((item) => (
-                  <tr key={item.id} className="hover:bg-surface-hover/30 transition-colors">
-                    <td className="text-muted px-4 py-3 font-mono text-xs">{item.sort_order}</td>
-                    <td className="px-4 py-3">
-                      <div className="text-text font-medium">{item.title}</div>
-                      <div className="text-muted text-xs">{item.company}</div>
-                    </td>
-                    <td className="text-muted px-4 py-3 font-mono text-xs">
-                      {item.period_label || `${item.start_date} – ${item.end_date || 'Present'}`}
-                    </td>
-                    <td className="text-muted px-4 py-3 text-xs">
-                      {(item.highlights || []).length} bullet point(s)
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`rounded px-2.5 py-1 font-mono text-xs ${
-                          item.is_published
-                            ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                            : 'border border-yellow-500/40 bg-yellow-500/10 text-yellow-400'
-                        }`}
-                      >
-                        {item.is_published ? 'Published' : 'Draft'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(item)}
-                          className="border-border bg-background text-text hover:border-accent cursor-pointer rounded border px-2.5 py-1 font-mono text-xs transition-colors"
+                experienceList.map((item) => {
+                  const photosCount = extractGalleryImages(item).length
+
+                  return (
+                    <tr key={item.id} className="hover:bg-surface-hover/30 transition-colors">
+                      <td className="text-muted px-4 py-3 font-mono text-xs">{item.sort_order}</td>
+                      <td className="px-4 py-3">
+                        <div className="text-text font-medium">{item.title}</div>
+                        <div className="text-muted text-xs">{item.company}</div>
+                      </td>
+                      <td className="text-muted px-4 py-3 font-mono text-xs">
+                        {item.period_label || `${item.start_date || ''} – ${item.end_date || 'Present'}`}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono text-xs text-blue-400">
+                          {photosCount} photo{photosCount === 1 ? '' : 's'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`rounded px-2.5 py-0.5 font-mono text-xs ${
+                            item.is_published
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                              : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                          }`}
                         >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item)}
-                          className="cursor-pointer rounded border border-red-500/30 px-2 py-1 font-mono text-xs text-red-400 transition-colors hover:bg-red-500/10"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          {item.is_published ? 'Published' : 'Draft'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openEditModal(item)}
+                            className="border-border bg-background text-text hover:border-accent cursor-pointer rounded border px-2.5 py-1 font-mono text-xs transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item)}
+                            className="border-border bg-background text-red-400 hover:border-red-500 hover:bg-red-500/10 cursor-pointer rounded border px-2.5 py-1 font-mono text-xs transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal Editor Form */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm">
-          <div className="border-border bg-surface max-h-[90vh] w-full max-w-2xl space-y-6 overflow-y-auto rounded-lg border p-6">
-            <div className="border-border/50 flex items-center justify-between border-b pb-3">
-              <h2 className="font-display text-text text-xl font-bold">
-                {editingItem.id ? `Edit: ${editingItem.title}` : 'Add Experience / Role'}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-muted hover:text-text cursor-pointer font-mono text-sm"
-              >
-                ✕ Cancel
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="border-border bg-surface max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border p-6 shadow-2xl">
+            <h2 className="font-display text-text text-lg font-bold">
+              {editingItem.id ? 'Edit Leadership & Event Role' : 'Add Leadership & Event Role'}
+            </h2>
+            <p className="text-muted font-mono text-xs">
+              Add event photos, conference keynotes, hackathon podium shots, and team certifications.
+            </p>
 
-            <form onSubmit={handleSave} className="space-y-4">
+            <form onSubmit={handleSave} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="text-muted mb-1 block font-mono text-xs">
@@ -263,7 +271,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                     onChange={(e) =>
                       setEditingItem((prev) => ({ ...prev, start_date: e.target.value }))
                     }
-                    placeholder="e.g. Aug 2024"
+                    placeholder="e.g. 2026-01-01"
                     className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
                   />
                 </div>
@@ -289,7 +297,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                     onChange={(e) =>
                       setEditingItem((prev) => ({ ...prev, period_label: e.target.value }))
                     }
-                    placeholder="e.g. Aug 2024 – Present"
+                    placeholder="e.g. 2026 or 2024–2025"
                     className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
                   />
                 </div>
@@ -309,57 +317,37 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
               <div>
                 <label className="text-muted mb-1 block font-mono text-xs">Description *</label>
                 <textarea
-                  required
                   rows={3}
+                  required
                   value={editingItem.description || ''}
                   onChange={(e) =>
                     setEditingItem((prev) => ({ ...prev, description: e.target.value }))
                   }
-                  className="border-border bg-background text-text focus:border-accent w-full resize-y rounded border px-3 py-2 text-sm focus:outline-none"
+                  className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 text-sm focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="text-muted mb-1 block font-mono text-xs">
-                  Bullet Point Highlights (one per line)
+                  Bullet Highlights (one per line)
                 </label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={highlightsInput}
                   onChange={(e) => setHighlightsInput(e.target.value)}
-                  placeholder="Led technical team of 15 engineers&#10;Organized full-day hackathon with 300+ attendees"
-                  className="border-border bg-background text-text focus:border-accent w-full resize-y rounded border px-3 py-2 font-mono text-sm text-xs focus:outline-none"
+                  placeholder="Led technical challenge design&#10;Mentored 150+ hackathon participants"
+                  className="border-border bg-background text-text focus:border-accent w-full rounded border px-3 py-2 font-mono text-xs focus:outline-none"
                 />
               </div>
 
-              {/* Event / Leadership Organization Visual Proof */}
-              <div className="border-border bg-background/50 rounded-lg border p-4">
-                <MediaUploader
+              {/* Multi-Image Gallery Manager */}
+              <div className="border-border bg-background/50 space-y-4 rounded-lg border p-4">
+                <MultiImageManager
                   folder="experience"
-                  mode="image"
-                  label="Event / Organization Photograph (Optional)"
-                  helpText="Upload authentic workshop, conference, or podium photograph (PNG, WebP, AVIF up to 15MB)"
-                  aspectRatioPreset="4:3"
-                  initialUrl={editingItem.image_url || editingItem.logo_url}
-                  initialAlt={editingItem.image_alt || editingItem.logo_alt}
-                  onUploadComplete={(meta) => {
-                    setEditingItem((prev) => ({
-                      ...prev,
-                      image_url: meta.url,
-                      image_alt: meta.alt,
-                      logo_url: meta.url,
-                      logo_alt: meta.alt,
-                    }))
-                  }}
-                  onRemove={() => {
-                    setEditingItem((prev) => ({
-                      ...prev,
-                      image_url: '',
-                      image_alt: '',
-                      logo_url: '',
-                      logo_alt: '',
-                    }))
-                  }}
+                  images={galleryList}
+                  onChange={setGalleryList}
+                  label="Role, Event & Conference Photographs"
+                  helpText="Upload multiple event pictures, keynote stage moments, or certificates. Reorder to select cover."
                 />
               </div>
 
@@ -401,6 +389,7 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                 <button
                   type="button"
                   onClick={closeModal}
+                  disabled={saving}
                   className="border-border bg-background text-muted hover:text-text cursor-pointer rounded border px-4 py-2 font-mono text-xs transition-colors"
                 >
                   Cancel
@@ -408,9 +397,9 @@ export function ExperienceManager({ initialExperience }: ExperienceManagerProps)
                 <button
                   type="submit"
                   disabled={saving}
-                  className="bg-accent hover:bg-accent-light text-text cursor-pointer rounded px-5 py-2 font-mono text-xs font-medium transition-colors disabled:opacity-50"
+                  className="bg-accent hover:bg-accent-light text-text cursor-pointer rounded px-4 py-2 font-mono text-xs font-semibold transition-colors disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Role'}
+                  {saving ? 'Saving...' : 'Save Position'}
                 </button>
               </div>
             </form>

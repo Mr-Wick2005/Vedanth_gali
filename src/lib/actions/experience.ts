@@ -19,6 +19,8 @@ const experienceSchema = z.object({
   image_alt: z.string().nullable().optional(),
   logo_url: z.string().nullable().optional(),
   logo_alt: z.string().nullable().optional(),
+  gallery: z.any().optional(),
+  images: z.any().optional(),
   sort_order: z.number().int().default(0),
   is_published: z.boolean().default(true),
 })
@@ -34,18 +36,42 @@ export async function saveExperience(input: ExperienceInput) {
   const supabase = await createClient()
   const data = { ...parsed.data }
 
-  // Sync image_url and logo_url to ensure compatibility across schema versions
-  if (data.image_url && !data.logo_url) data.logo_url = data.image_url
-  if (data.image_alt && !data.logo_alt) data.logo_alt = data.image_alt
+  // Sync primary image to logo_url and image_url
+  if (Array.isArray(data.images) && data.images.length > 0 && data.images[0]?.url) {
+    data.logo_url = data.images[0].url
+    data.image_url = data.images[0].url
+    if (data.images[0].alt) {
+      data.logo_alt = data.images[0].alt
+      data.image_alt = data.images[0].alt
+    }
+  } else if (Array.isArray(data.gallery) && data.gallery.length > 0 && data.gallery[0]?.url) {
+    data.logo_url = data.gallery[0].url
+    data.image_url = data.gallery[0].url
+    if (data.gallery[0].alt) {
+      data.logo_alt = data.gallery[0].alt
+      data.image_alt = data.gallery[0].alt
+    }
+  } else {
+    if (data.image_url && !data.logo_url) data.logo_url = data.image_url
+    if (data.logo_url && !data.image_url) data.image_url = data.logo_url
+  }
 
   if (parsed.data.id) {
     let { error } = await supabase.from('experience').update(data).eq('id', parsed.data.id)
-    
-    // Schema mismatch fallback: if database has not yet run redesign migration with image_alt/image_url
-    if (error && (error.message.includes('image_alt') || error.message.includes('image_url'))) {
+
+    // Fallback if gallery / images / image_url columns don't exist yet on remote table
+    if (
+      error &&
+      (error.message.includes('image_alt') ||
+        error.message.includes('image_url') ||
+        error.message.includes('gallery') ||
+        error.message.includes('images'))
+    ) {
       const legacyData = { ...data }
       delete (legacyData as Record<string, unknown>).image_url
       delete (legacyData as Record<string, unknown>).image_alt
+      delete (legacyData as Record<string, unknown>).gallery
+      delete (legacyData as Record<string, unknown>).images
       const retry = await supabase.from('experience').update(legacyData).eq('id', parsed.data.id)
       error = retry.error
     }
@@ -54,11 +80,18 @@ export async function saveExperience(input: ExperienceInput) {
   } else {
     let { error } = await supabase.from('experience').insert(data)
 
-    // Schema mismatch fallback for insert
-    if (error && (error.message.includes('image_alt') || error.message.includes('image_url'))) {
+    if (
+      error &&
+      (error.message.includes('image_alt') ||
+        error.message.includes('image_url') ||
+        error.message.includes('gallery') ||
+        error.message.includes('images'))
+    ) {
       const legacyData = { ...data }
       delete (legacyData as Record<string, unknown>).image_url
       delete (legacyData as Record<string, unknown>).image_alt
+      delete (legacyData as Record<string, unknown>).gallery
+      delete (legacyData as Record<string, unknown>).images
       const retry = await supabase.from('experience').insert(legacyData)
       error = retry.error
     }

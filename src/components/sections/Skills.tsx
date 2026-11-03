@@ -3,11 +3,12 @@
 import React, { useState } from 'react'
 import type { SkillRow, ProjectRow } from '@/types/database'
 import { Icon } from '@/components/ui/icon'
-import { Tilt } from '@/components/motion/Tilt'
 
 interface SkillsProps {
   skillsGrouped: Record<string, SkillRow[]>
   projects?: ProjectRow[]
+  content?: Record<string, unknown> | null
+  style?: Record<string, unknown> | null
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -20,8 +21,54 @@ const CATEGORY_ICONS: Record<string, string> = {
   'Machine Learning': 'cpu',
 }
 
-export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
+const DEFAULT_SPOTLIGHT_ITEMS = [
+  { name: 'Next.js 14/16', icon: 'nextjs', deployedIn: 'The Rkive' },
+  { name: 'React 19', icon: 'react', deployedIn: 'Escape Placement Cell' },
+  { name: 'TypeScript', icon: 'typescript', deployedIn: 'All Platforms' },
+  { name: 'Supabase & RLS', icon: 'supabase', deployedIn: 'The Rkive & Escape' },
+  { name: 'PostgreSQL', icon: 'postgresql', deployedIn: 'The Rkive DB' },
+  { name: 'Tailwind CSS v4', icon: 'tailwindcss', deployedIn: 'All Platforms' },
+  { name: 'Python & TF', icon: 'python', deployedIn: 'Plant Disease CNN' },
+  { name: 'Git & Vercel', icon: 'git', deployedIn: 'CI/CD Pipelines' },
+]
+
+export function Skills({ skillsGrouped, projects = [], content }: SkillsProps) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+
+  const kicker =
+    typeof content?.kicker === 'string' && content.kicker.trim()
+      ? content.kicker
+      : '[ 06 — TECH STACK & ARCHITECTURE ]'
+
+  const headingLine1 =
+    typeof content?.heading_line_1 === 'string' && content.heading_line_1.trim()
+      ? content.heading_line_1
+      : 'Engineering'
+
+  const headingLine2 =
+    typeof content?.heading_line_2 === 'string' && content.heading_line_2.trim()
+      ? content.heading_line_2
+      : 'Stack.'
+
+  const subtitle =
+    typeof content?.subtitle === 'string' && content.subtitle.trim()
+      ? content.subtitle
+      : 'Distinguishing active production technologies deployed in live builds from foundational academic engineering proficiencies.'
+
+  const spotlightTitle =
+    typeof content?.spotlight_title === 'string' && content.spotlight_title.trim()
+      ? content.spotlight_title
+      : 'ACTIVE PRODUCTION STACK'
+
+  const spotlightSubtitle =
+    typeof content?.spotlight_subtitle === 'string' && content.spotlight_subtitle.trim()
+      ? content.spotlight_subtitle
+      : 'Live in deployed platforms: The Rkive, Escape Placement Cell'
+
+  const spotlightItems =
+    Array.isArray(content?.spotlight_items) && content.spotlight_items.length > 0
+      ? (content.spotlight_items as typeof DEFAULT_SPOTLIGHT_ITEMS)
+      : DEFAULT_SPOTLIGHT_ITEMS
 
   const categoryOrder = [
     'Frontend',
@@ -42,7 +89,6 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
     return a.localeCompare(b)
   })
 
-  // Function to find matching projects for a given skill
   const getUsedInProjects = (skillName: string) => {
     const s = skillName.toLowerCase()
     return projects
@@ -56,70 +102,63 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
   }
 
   return (
-    <section id="stack" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-black py-16 sm:py-24">
+    <section id="stack" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#05060a] py-16 sm:py-24">
       {/* Background ambient lighting */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/[0.06] blur-[140px]"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/[0.08] blur-[150px]"
       />
 
       <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         {/* Section Header */}
-        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
-              [ 06 — TECH STACK & ARCHITECTURE ]
+            <span className="font-mono text-xs uppercase tracking-widest text-blue-400">
+              {kicker}
             </span>
             <h2 className="mt-2 font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white">
-              Engineering <br />
-              <span className="text-violet-400">Stack.</span>
+              {headingLine1} <br />
+              <span className="text-gradient-accent">{headingLine2}</span>
             </h2>
           </div>
-          <p className="max-w-md font-mono text-xs sm:text-sm text-muted leading-relaxed">
-            Distinguishing active production technologies deployed in live builds from foundational academic engineering proficiencies.
+          <p className="max-w-md font-mono text-xs sm:text-sm text-slate-400 leading-relaxed">
+            {subtitle}
           </p>
         </div>
 
         {/* Production Stack Spotlight Bar */}
-        <div className="mb-8 rounded-2xl border border-violet-500/25 bg-gradient-to-r from-violet-950/30 via-[#0b0b18] to-cyan-950/20 p-5 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+        <div className="mb-8 rounded-2xl border border-blue-500/30 bg-gradient-to-r from-blue-950/30 via-[#0a0c14] to-pink-950/20 p-5 sm:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
               <span className="font-mono text-xs font-bold uppercase tracking-wider text-white">
-                ACTIVE PRODUCTION STACK
+                {spotlightTitle}
               </span>
             </div>
-            <span className="font-mono text-[11px] text-muted">
-              Live in deployed platforms: The Rkive, Escape Placement Cell
+            <span className="font-mono text-[11px] text-slate-400">
+              {spotlightSubtitle}
             </span>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            {[
-              { name: 'Next.js 14/16', icon: 'nextjs', deployedIn: 'The Rkive' },
-              { name: 'React 19', icon: 'react', deployedIn: 'Escape Placement Cell' },
-              { name: 'TypeScript', icon: 'typescript', deployedIn: 'All Platforms' },
-              { name: 'Supabase & RLS', icon: 'supabase', deployedIn: 'The Rkive & Escape' },
-              { name: 'PostgreSQL', icon: 'postgresql', deployedIn: 'The Rkive DB' },
-              { name: 'Tailwind CSS', icon: 'tailwindcss', deployedIn: 'All Platforms' },
-              { name: 'Python & TF', icon: 'python', deployedIn: 'Plant Disease CNN' },
-              { name: 'Git & Vercel', icon: 'git', deployedIn: 'CI/CD Pipelines' },
-            ].map((tech) => (
+            {spotlightItems.map((tech) => (
               <div
                 key={tech.name}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black/50 px-3 py-1.5 font-mono text-xs text-text-lilac shadow-sm"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black/60 px-3 py-1.5 font-mono text-xs text-slate-200 shadow-sm"
               >
                 <Icon name={tech.icon} size={14} colored={true} />
                 <span className="font-semibold text-white">{tech.name}</span>
-                <span className="text-[10px] text-violet-400 border-l border-white/10 pl-2">
-                  {tech.deployedIn}
-                </span>
+                {tech.deployedIn && (
+                  <span className="text-[10px] text-blue-400 border-l border-white/10 pl-2">
+                    {tech.deployedIn}
+                  </span>
+                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Categories Matrix */}
+        {/* Categories Matrix - Symmetrical Grid with Equal Heights */}
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => {
             const list = skillsGrouped[category] || []
@@ -128,69 +167,55 @@ export function Skills({ skillsGrouped, projects = [] }: SkillsProps) {
             return (
               <div
                 key={category}
-                className="rounded-xl border border-white/[0.08] bg-[#0b0b1a] p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all hover:border-violet-500/30"
+                className="flex flex-col justify-between h-full rounded-xl border border-white/10 bg-[#0a0c14] p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all hover:border-blue-500/40"
               >
                 {/* Category Header */}
                 <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">
                       <Icon name={catIcon} size={14} colored={false} />
                     </div>
                     <h3 className="font-display text-sm font-bold uppercase tracking-tight text-white">
                       {category}
                     </h3>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-muted">
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[10px] text-slate-400">
                     {list.length}
                   </span>
                 </div>
 
-                {/* Skill Tiles Grid */}
-                <div className="mt-3.5 grid grid-cols-2 gap-2">
+                {/* Skill Tiles Grid - Symmetrical layout */}
+                <div className="mt-3.5 grid grid-cols-2 gap-2 flex-1 content-start">
                   {list.map((skill) => {
-                    const matchedProjects = getUsedInProjects(skill.name)
-                    const isHovered = activeTooltip === skill.id
-                    const iconKey =
-                      skill.name.toLowerCase() === 'antigravity'
-                        ? 'antigravity'
-                        : skill.icon_key || skill.name
+                    const deployedProjects = getUsedInProjects(skill.name)
+                    const isTooltipOpen = activeTooltip === skill.id
 
                     return (
                       <div
                         key={skill.id}
-                        onMouseEnter={() => setActiveTooltip(skill.id)}
+                        onMouseEnter={() => deployedProjects.length > 0 && setActiveTooltip(skill.id)}
                         onMouseLeave={() => setActiveTooltip(null)}
-                        className="relative"
+                        className="group/item relative flex items-center gap-2 rounded-lg border border-white/[0.06] bg-black/40 px-3 py-2 text-xs transition-all hover:border-blue-500/30 hover:bg-white/[0.03]"
                       >
-                        <Tilt maxAngle={6} perspective={600} glare={false}>
-                          <div className="group flex items-center gap-2 rounded-lg border border-white/[0.07] bg-white/[0.02] p-2 transition-all hover:border-violet-500/40 hover:bg-violet-600/[0.09] hover:shadow-[0_0_15px_rgba(139,92,246,0.18)]">
-                            {/* Colorful Brand Icon Badge */}
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-black/50 border border-white/10 group-hover:border-violet-500/30 transition-colors">
-                              <Icon
-                                name={iconKey}
-                                size={14}
-                                colored={true}
-                              />
-                            </div>
-                            <span className="font-mono text-[11px] font-medium text-text-lilac group-hover:text-white transition-colors truncate">
-                              {skill.name}
-                            </span>
-                          </div>
-                        </Tilt>
+                        <div className="shrink-0 text-slate-400 group-hover/item:text-blue-400 transition-colors">
+                          <Icon name={skill.icon_key || 'code'} size={14} colored={true} />
+                        </div>
+                        <span className="font-mono text-[11px] text-slate-300 group-hover/item:text-white transition-colors truncate">
+                          {skill.name}
+                        </span>
 
-                        {/* Interactive Cross-Project Tooltip */}
-                        {isHovered && (
-                          <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-48 -translate-x-1/2 rounded-lg border border-violet-500/40 bg-[#0d0d24] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.85)] backdrop-blur-md">
-                            <span className="block font-mono text-[9px] uppercase tracking-wider text-violet-400">
-                              CROSS-PROJECT USAGE
-                            </span>
-                            <p className="mt-1 font-sans text-xs text-text-lilac leading-snug">
-                              {matchedProjects.length > 0 ? (
-                                <>Used in: <strong className="text-white">{matchedProjects.join(', ')}</strong></>
-                              ) : (
-                                'Core engineering competency'
-                              )}
-                            </p>
+                        {deployedProjects.length > 0 && (
+                          <span
+                            aria-label={`Used in ${deployedProjects.join(', ')}`}
+                            className="ml-auto flex h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400"
+                          />
+                        )}
+
+                        {/* Interactive Project Mapping Tooltip */}
+                        {isTooltipOpen && deployedProjects.length > 0 && (
+                          <div className="absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 rounded-md border border-white/10 bg-[#0e111b] px-2.5 py-1.5 font-mono text-[10px] text-slate-200 shadow-xl whitespace-nowrap">
+                            <span className="text-slate-400">Deployed in: </span>
+                            <span className="text-blue-400 font-semibold">{deployedProjects.join(', ')}</span>
                           </div>
                         )}
                       </div>

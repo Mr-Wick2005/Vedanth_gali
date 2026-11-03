@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Unbounded, Geist, Geist_Mono } from 'next/font/google'
+import { getSiteSettings } from '@/lib/content'
 import './globals.css'
 
 const displayFont = Unbounded({
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
     template: '%s | Vedanth Gali',
   },
   description:
-    'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms and leading technical events in Mumbai.',
+    'Official engineering website of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms and leading technical events in Mumbai.',
   keywords: [
     'Vedanth Gali',
     'Frontend Developer',
@@ -79,8 +80,8 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
     description:
-      'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
-    siteName: 'Vedanth Gali Portfolio',
+      'Official engineering website of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
+    siteName: 'Vedanth Gali',
     images: [
       {
         url: '/og-image.png',
@@ -94,17 +95,34 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Vedanth Gali | Frontend & Full-Stack Developer, Mumbai',
     description:
-      'Portfolio of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
+      'Official engineering website of Vedanth Gali, final-year Computer Engineering student and React/TypeScript developer building scalable web platforms.',
     images: ['/og-image.png'],
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings()
+
+  // Generate dynamic font override and theme styles if configured in database
+  const dynamicCss = `
+    :root {
+      ${settings?.display_font_family ? `--font-display: ${settings.display_font_family}, var(--font-display-slot), sans-serif;` : ''}
+      ${settings?.body_font_family ? `--font-sans: ${settings.body_font_family}, var(--font-body-slot), sans-serif;` : ''}
+      ${settings?.mono_font_family ? `--font-mono: ${settings.mono_font_family}, var(--font-mono-slot), monospace;` : ''}
+      ${settings?.accent_color_primary ? `--color-accent: ${settings.accent_color_primary};` : ''}
+    }
+  `.trim()
+
   return (
     <html
       lang="en"
       className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} dark`}
     >
+      <head>
+        {dynamicCss && (
+          <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
+        )}
+      </head>
       <body className="bg-background text-text selection:bg-accent selection:text-text min-h-screen antialiased">
         {children}
       </body>

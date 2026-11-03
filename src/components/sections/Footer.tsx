@@ -10,14 +10,57 @@ import { Magnetic } from '@/components/motion/Magnetic'
 interface FooterProps {
   socialLinks: SocialLinkRow[]
   email?: string
+  content?: Record<string, unknown> | null
+  style?: Record<string, unknown> | null
 }
 
 export function Footer({
   socialLinks,
-  email = 'vedanthgali@gmail.com',
+  email: initialEmail = 'vedanthmgali@gmail.com',
+  content,
 }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const [copied, setCopied] = useState(false)
+
+  const kicker =
+    typeof content?.kicker === 'string' && content.kicker.trim()
+      ? content.kicker
+      : '[ 09 — NEXT STEPS & CONTACT ]'
+
+  const headingLine1 =
+    typeof content?.heading_line_1 === 'string' && content.heading_line_1.trim()
+      ? content.heading_line_1
+      : "Let's Build"
+
+  const headingLine2 =
+    typeof content?.heading_line_2 === 'string' && content.heading_line_2.trim()
+      ? content.heading_line_2
+      : 'Together.'
+
+  const body =
+    typeof content?.body === 'string' && content.body.trim()
+      ? content.body
+      : 'Open to full-time Frontend & Full-Stack engineering opportunities. Available to discuss systems architecture, production web builds, and technical creative direction.'
+
+  const email =
+    typeof content?.email === 'string' && content.email.trim()
+      ? content.email
+      : initialEmail
+
+  const ctaPrimaryLabel =
+    typeof content?.cta_primary_label === 'string' && content.cta_primary_label.trim()
+      ? content.cta_primary_label
+      : 'Send An Email'
+
+  const ctaCopyLabel =
+    typeof content?.cta_copy_label === 'string' && content.cta_copy_label.trim()
+      ? content.cta_copy_label
+      : 'Copy Email'
+
+  const copyrightText =
+    typeof content?.copyright === 'string' && content.copyright.trim()
+      ? content.copyright
+      : `© ${currentYear} Vedanth Gali`
 
   const handleCopyEmail = async () => {
     try {
@@ -34,26 +77,30 @@ export function Footer({
   }
 
   return (
-    <footer className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-black pt-24 pb-12 text-white">
+    <footer className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#05060a] pt-24 pb-12 text-white">
       {/* Background ambient spotlight */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-1/2 h-[450px] w-full max-w-[1200px] -translate-x-1/2 rounded-full bg-violet-600/[0.06] blur-[120px]"
+        className="pointer-events-none absolute bottom-0 left-1/2 h-[450px] w-full max-w-[1200px] -translate-x-1/2 rounded-full bg-blue-600/[0.08] blur-[140px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-10 right-1/4 h-[350px] w-[350px] rounded-full bg-pink-600/[0.06] blur-[120px]"
       />
 
       <div className="relative mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14 xl:px-16">
         {/* Kinetic CTA Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <span className="font-mono text-xs uppercase tracking-widest text-violet-400">
-              [ 09 — NEXT STEPS ]
+            <span className="font-mono text-xs uppercase tracking-widest text-blue-400">
+              {kicker}
             </span>
             <h2 className="mt-3 font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase tracking-tight text-white leading-[0.95]">
-              Let&apos;s Build <br />
-              <span className="text-violet-400">Together.</span>
+              {headingLine1} <br />
+              <span className="text-gradient-accent">{headingLine2}</span>
             </h2>
-            <p className="mt-4 font-mono text-xs sm:text-sm text-muted leading-relaxed max-w-lg">
-              Open to full-time Frontend &amp; Full-Stack engineering opportunities. Available to discuss systems architecture, production web builds, and technical creative direction.
+            <p className="mt-4 font-mono text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg">
+              {body}
             </p>
           </div>
 
@@ -62,9 +109,9 @@ export function Footer({
             <Magnetic strength={0.25}>
               <a
                 href={`mailto:${email}`}
-                className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-7 py-3.5 font-mono text-sm font-semibold uppercase tracking-wider text-white shadow-[0_0_30px_rgba(139,92,246,0.35)] transition-all hover:bg-violet-500 hover:shadow-[0_0_40px_rgba(139,92,246,0.55)]"
+                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-7 py-3.5 font-mono text-sm font-semibold uppercase tracking-wider text-white shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all hover:bg-blue-500 hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]"
               >
-                <span>Send An Email</span>
+                <span>{ctaPrimaryLabel}</span>
                 <Icon name="arrow-up-right" size={16} />
               </a>
             </Magnetic>
@@ -73,89 +120,59 @@ export function Footer({
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-3.5 font-mono text-sm font-medium tracking-wider text-text-lilac transition-all hover:border-white/20 hover:bg-white/[0.08]"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-3.5 font-mono text-sm font-medium tracking-wider text-slate-300 transition-all hover:border-pink-500/40 hover:text-white"
               >
                 <Icon name={copied ? 'check' : 'copy'} size={16} className={copied ? 'text-emerald-400' : ''} />
-                <span>{copied ? 'Copied to Clipboard' : 'Copy Email'}</span>
+                <span>{copied ? 'Copied to Clipboard' : ctaCopyLabel}</span>
               </button>
             </Magnetic>
           </div>
         </div>
-
-        {/* Metadata Rail */}
-        <div className="mt-20 grid grid-cols-1 gap-8 border-y border-white/[0.08] py-8 sm:grid-cols-2 md:grid-cols-4 font-mono text-xs text-muted">
-          {/* Col 1: Time */}
-          <div>
-            <span className="block text-[11px] uppercase tracking-wider text-white/40">LOCATION & TIME</span>
-            <div className="mt-2 text-text">
-              <Clock showPrefix={false} className="text-xs" /> • Mumbai, India
-            </div>
-          </div>
-
-          {/* Col 2: Status */}
-          <div>
-            <span className="block text-[11px] uppercase tracking-wider text-white/40">CURRENT STATUS</span>
-            <div className="mt-2 flex items-center gap-2 text-text">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-              <span>Available for Roles</span>
-            </div>
-          </div>
-
-          {/* Col 3: Social Links */}
-          <div>
-            <span className="block text-[11px] uppercase tracking-wider text-white/40">VERIFIED PROFILES</span>
-            <div className="mt-2 flex items-center gap-4">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-text-lilac transition-colors hover:text-violet-300"
-                  aria-label={link.label}
-                >
-                  <Icon name={link.label} size={16} />
-                  <span>{link.label}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Col 4: Back to top */}
-          <div className="flex sm:justify-end">
-            <Magnetic strength={0.3}>
-              <button
-                type="button"
-                onClick={scrollToTop}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-muted transition-colors hover:border-violet-400/40 hover:text-white"
+        {/* Social Links Row */}
+        {socialLinks.length > 0 && (
+          <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-white/[0.08] pt-6 font-mono text-xs">
+            <span className="text-slate-500 uppercase tracking-wider text-[11px] mr-2">Networks:</span>
+            {socialLinks.map((link) => (
+              <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-slate-300 transition-colors hover:border-blue-500/40 hover:text-white"
               >
-                <span>Back to Top</span>
-                <Icon name="arrow-down" size={14} className="rotate-180" />
-              </button>
-            </Magnetic>
+                <Icon name={link.label} size={13} />
+                <span>{link.label}</span>
+              </a>
+            ))}
           </div>
-        </div>
+        )}
 
-        {/* Oversized Wordmark */}
-        <div className="select-none pt-16 pb-8 text-center w-full max-w-full overflow-hidden">
-          <span className="block font-display text-[12vw] 2xl:text-[180px] font-black uppercase leading-none tracking-tighter text-stroke text-white/5 opacity-40">
-            VEDANTH GALI
-          </span>
-        </div>
+        {/* Bottom Colophon Bar */}
+        <div className="mt-8 flex flex-col items-center justify-between gap-6 border-t border-white/[0.08] pt-8 font-mono text-xs text-slate-400 sm:flex-row">
+          <div className="flex items-center gap-4">
+            <Clock showPrefix className="text-xs" />
+            <span>•</span>
+            <span>Mumbai, IN</span>
+          </div>
 
-        {/* Minimal Copyright with Discreet Admin Portal Link */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 text-center font-mono text-xs text-muted/60 sm:flex-row sm:text-left">
-          <p>© {currentYear} Vedanth Gali. Built with Next.js 16, React 19, TypeScript, and Supabase.</p>
-          <div className="flex items-center gap-2">
-            <p className="text-[11px] text-white/30">Crafted with precision • Mumbai, Maharashtra</p>
-            <span className="text-white/10" aria-hidden="true">•</span>
+          <div className="flex items-center gap-6">
+            <span>{copyrightText}</span>
+            <span>•</span>
             <Link
               href="/admin"
-              className="text-[11px] text-white/20 transition-colors hover:text-violet-400 focus:text-violet-400 focus:outline-none"
-              title="Admin Portal"
+              className="text-slate-500 hover:text-slate-300 transition-colors"
             >
-              admin
+              {'// admin'}
             </Link>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-1 text-slate-400 hover:text-white transition-colors"
+            >
+              <span>Back to Top</span>
+              <Icon name="arrow-up" size={13} />
+            </button>
           </div>
         </div>
       </div>

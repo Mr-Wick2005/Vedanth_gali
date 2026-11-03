@@ -8,6 +8,9 @@ import type {
   CertificationRow,
   SkillRow,
   SocialLinkRow,
+  NavItemRow,
+  SectionRow,
+  FontRow,
 } from '@/types/database'
 import {
   FALLBACK_PROFILE,
@@ -18,6 +21,9 @@ import {
   FALLBACK_CERTIFICATIONS,
   FALLBACK_SKILLS,
   FALLBACK_SOCIAL_LINKS,
+  FALLBACK_NAV_ITEMS,
+  FALLBACK_SECTIONS,
+  FALLBACK_FONTS,
 } from './fallback'
 
 /**
@@ -267,3 +273,87 @@ export async function getSocialLinks(): Promise<SocialLinkRow[]> {
     return FALLBACK_SOCIAL_LINKS
   }
 }
+
+/**
+ * Fetch visible navigation items, ordered by order_index ascending
+ */
+export async function getNavItems(): Promise<NavItemRow[]> {
+  if (!hasSupabaseEnv()) return FALLBACK_NAV_ITEMS
+
+  try {
+    const supabase = createPublicClient()
+    const { data, error } = await supabase
+      .from('nav_items')
+      .select('*')
+      .eq('is_visible', true)
+      .order('order_index', { ascending: true })
+
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase nav_items query notice:', error.message)
+      return FALLBACK_NAV_ITEMS
+    }
+
+    return data
+  } catch {
+    return FALLBACK_NAV_ITEMS
+  }
+}
+
+/**
+ * Fetch published, visible sections ordered by order_index ascending
+ */
+export async function getSections(): Promise<SectionRow[]> {
+  if (!hasSupabaseEnv()) return FALLBACK_SECTIONS
+
+  try {
+    const supabase = createPublicClient()
+    const { data, error } = await supabase
+      .from('sections')
+      .select('*')
+      .eq('is_visible', true)
+      .eq('status', 'published')
+      .order('order_index', { ascending: true })
+
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase sections query notice:', error.message)
+      return FALLBACK_SECTIONS
+    }
+
+    return data
+  } catch {
+    return FALLBACK_SECTIONS
+  }
+}
+
+/**
+ * Fetch a single section by key
+ */
+export async function getSectionByKey(key: string): Promise<SectionRow | null> {
+  const sections = await getSections()
+  return sections.find((s) => s.key === key) || FALLBACK_SECTIONS.find((s) => s.key === key) || null
+}
+
+/**
+ * Fetch registered fonts
+ */
+export async function getFonts(): Promise<FontRow[]> {
+  if (!hasSupabaseEnv()) return FALLBACK_FONTS
+
+  try {
+    const supabase = createPublicClient()
+    const { data, error } = await supabase
+      .from('fonts')
+      .select('*')
+      .order('name', { ascending: true })
+
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase fonts query notice:', error.message)
+      return FALLBACK_FONTS
+    }
+
+    return data
+  } catch {
+    return FALLBACK_FONTS
+  }
+}
+

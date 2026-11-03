@@ -12,6 +12,9 @@ const certSchema = z.object({
   year: z.number().int(),
   credential_url: z.string().nullable().optional(),
   image_url: z.string().nullable().optional(),
+  image_alt: z.string().nullable().optional(),
+  gallery: z.any().optional(),
+  images: z.any().optional(),
   sort_order: z.number().int().default(0),
   is_published: z.boolean().default(true),
 })
@@ -25,15 +28,44 @@ export async function saveCertification(input: CertificationInput) {
   }
 
   const supabase = await createClient()
+  const data = { ...parsed.data }
+
+  // Sync image_url from gallery/images if provided
+  if (Array.isArray(data.images) && data.images.length > 0 && data.images[0]?.url) {
+    data.image_url = data.images[0].url
+    if (data.images[0].alt) data.image_alt = data.images[0].alt
+  } else if (Array.isArray(data.gallery) && data.gallery.length > 0 && data.gallery[0]?.url) {
+    data.image_url = data.gallery[0].url
+    if (data.gallery[0].alt) data.image_alt = data.gallery[0].alt
+  }
 
   if (parsed.data.id) {
-    const { error } = await supabase
+    let { error } = await supabase
       .from('certifications')
-      .update(parsed.data)
+      .update(data)
       .eq('id', parsed.data.id)
+
+    // Fallback if gallery / images columns don't exist yet on remote table
+    if (error && (error.message.includes('gallery') || error.message.includes('images'))) {
+      const legacyData = { ...data }
+      delete legacyData.gallery
+      delete legacyData.images
+      const retry = await supabase.from('certifications').update(legacyData).eq('id', parsed.data.id)
+      error = retry.error
+    }
+
     if (error) return { success: false, error: error.message }
   } else {
-    const { error } = await supabase.from('certifications').insert(parsed.data)
+    let { error } = await supabase.from('certifications').insert(data)
+
+    if (error && (error.message.includes('gallery') || error.message.includes('images'))) {
+      const legacyData = { ...data }
+      delete legacyData.gallery
+      delete legacyData.images
+      const retry = await supabase.from('certifications').insert(legacyData)
+      error = retry.error
+    }
+
     if (error) return { success: false, error: error.message }
   }
 

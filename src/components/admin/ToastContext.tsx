@@ -18,6 +18,7 @@ interface ToastContextValue {
     success: (message: string, title?: string, duration?: number) => void
     error: (message: string, title?: string, duration?: number) => void
     info: (message: string, title?: string, duration?: number) => void
+    showToast: (message: string, type?: ToastType) => void
   }
   dismiss: (id: string) => void
 }
@@ -63,6 +64,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       addToast('error', message, title, duration),
     info: (message: string, title = 'Notice', duration = 4000) =>
       addToast('info', message, title, duration),
+    showToast: (message: string, type: ToastType = 'info') => {
+      if (type === 'success') addToast('success', message, 'Success', 4000)
+      else if (type === 'error') addToast('error', message, 'Error', 6000)
+      else addToast('info', message, 'Notice', 4000)
+    },
   }
 
   return (

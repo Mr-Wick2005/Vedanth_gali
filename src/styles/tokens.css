@@ -1,42 +1,65 @@
 :root {
-  /* Canvas & Stages (OLED Dark) */
-  --color-stage-black: #000000;
-  --color-stage-deep: #05050c;
-  --color-stage-indigo: #080816;
+  /* Canvas & Stages (Near-black layers per Phase 2 Design Direction) */
+  --color-stage-black: #05060a;
+  --color-stage-deep: #0a0c14;
+  --color-stage-indigo: #10131d;
 
-  /* Colors - Single accent violet palette with depth */
-  --color-background: var(--color-stage-deep);
-  --color-surface: #0b0b18;
-  --color-surface-hover: #121226;
-  --color-surface-overlay: #1a1a36;
-  --color-surface-glass: rgba(11, 11, 24, 0.75);
-  
-  --color-border: rgba(139, 92, 246, 0.28);
-  --color-border-hover: rgba(167, 139, 250, 0.55);
+  /* Backgrounds & Surface Hierarchy */
+  --color-background: #05060a;
+  --color-surface: #0a0c14;
+  --color-surface-hover: #10131d;
+  --color-surface-overlay: #151926;
+  --color-surface-glass: rgba(10, 12, 20, 0.75);
+
+  /* Borders & Hairlines */
+  --color-border: rgba(59, 130, 246, 0.22);
+  --color-border-hover: rgba(96, 165, 250, 0.45);
+  --color-border-accent: rgba(236, 72, 153, 0.4);
   --color-hairline: rgba(255, 255, 255, 0.08);
-  --color-hairline-accent: rgba(167, 139, 250, 0.35);
-  
-  /* Typography & Contrast (Tested for WCAG 2.1 AA/AAA compliance against #05050c) */
-  --color-text: #f8f8fc;
-  --color-text-lilac: #dcd8f3;
-  --color-muted: #9d9bb8;
-  --color-text-dim: #686685;
-  
-  /* Functional Accents */
-  --color-accent: #8b5cf6;
-  --color-violet-glow: #a78bfa;
+  --color-hairline-accent: rgba(59, 130, 246, 0.3);
+
+  /* Typography & Contrast (WCAG 2.1 AA/AAA tested against #05060a) */
+  --color-text: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-lilac: #cbd5e1;
+  --color-muted: #94a3b8;
+  --color-text-dim: #64748b;
+
+  /* Primary Electric Blue */
+  --color-blue-primary: #2563eb;
+  --color-blue-electric: #3b82f6;
+  --color-blue-light: #60a5fa;
   --color-cyan-glow: #38bdf8;
-  --color-accent-subtle: rgba(139, 92, 246, 0.12);
+  --color-accent: #2563eb;
+
+  /* Warm Red -> Hot Pink -> Magenta */
+  --color-red-accent: #ef4444;
+  --color-pink-hot: #ec4899;
+  --color-magenta-glow: #d946ef;
+  --color-violet-glow: #818cf8;
+
+  /* Gradients & Glow Shadows (Reusable Tokens) */
+  --gradient-accent: linear-gradient(135deg, #ef4444 0%, #ec4899 50%, #d946ef 100%);
+  --gradient-electric: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+  --gradient-border: linear-gradient(135deg, rgba(37, 99, 235, 0.35) 0%, rgba(236, 72, 153, 0.35) 100%);
+  --gradient-hero: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #60a5fa 100%);
+  --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #ec4899 70%, #d946ef 100%);
+
+  --shadow-glow-blue: 0 0 35px -5px rgba(37, 99, 235, 0.4);
+  --shadow-glow-magenta: 0 0 35px -5px rgba(236, 72, 153, 0.35);
+  --shadow-glow-sm: 0 0 20px rgba(59, 130, 246, 0.25);
+
+  --color-accent-subtle: rgba(37, 99, 235, 0.12);
   --color-status-success: #10b981;
   --color-status-warning: #f59e0b;
-  --color-status-danger: #f43f5e;
+  --color-status-danger: #ef4444;
 
-  /* Font Slots (set by next/font in layout) */
+  /* Font Slots */
   --font-display: var(--font-display-slot, 'Unbounded', system-ui, -apple-system, sans-serif);
   --font-body: var(--font-body-slot, 'Geist Sans', system-ui, -apple-system, sans-serif);
   --font-mono: var(--font-mono-slot, 'Geist Mono', ui-monospace, SFMono-Regular, monospace);
 
-  /* Fluid Type Scale using clamp() - Body at least 17px (1.0625rem) */
+  /* Fluid Type Scale */
   --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
   --font-size-sm: clamp(0.875rem, 0.82rem + 0.28vw, 0.9375rem);
   --font-size-base: clamp(1.0625rem, 1rem + 0.25vw, 1.125rem);
@@ -46,9 +69,9 @@
   --font-size-2xl: clamp(2rem, 1.75rem + 1.1vw, 2.5rem);
   --font-size-3xl: clamp(2.5rem, 2.1rem + 1.6vw, 3.5rem);
   --font-size-4xl: clamp(3.2rem, 2.6rem + 2.5vw, 5rem);
-  --font-size-display: clamp(3.5rem, 12vw, 11rem);
+  --font-size-display: clamp(3.5rem, 10vw, 9.5rem);
 
-  /* Spacing Scale */
+  /* Spacing Scale (4/8px grid) */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -61,14 +84,15 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
-  --section-padding: clamp(5rem, 8vw, 8rem);
+  --section-padding: clamp(4.5rem, 7vw, 7.5rem);
   --container-max: 1600px;
 
   /* Radii */
-  --radius-sm: 0.25rem;
+  --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
   --radius-full: 9999px;
 
   /* Easing Curves */
@@ -77,7 +101,7 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* Durations (200-600ms range for UI) */
+  /* Durations */
   --duration-fast: 200ms;
   --duration-normal: 350ms;
   --duration-slow: 500ms;

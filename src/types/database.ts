@@ -12,9 +12,12 @@ export interface GalleryItem {
   path?: string
   url: string
   alt: string
+  caption?: string
   width?: number
   height?: number
   sort?: number
+  order?: number
+  isCover?: boolean
 }
 
 export interface Database {
@@ -97,6 +100,23 @@ export interface Database {
           og_image_url: string | null
           og_image_alt: string | null
           availability_visible: boolean
+          site_title?: string
+          site_description?: string
+          site_keywords?: string[]
+          site_url?: string
+          author_name?: string
+          author_email?: string
+          author_location?: string
+          favicon_url?: string | null
+          theme_mode?: string
+          accent_color_primary?: string
+          accent_color_secondary?: string
+          bg_base_color?: string
+          surface_color?: string
+          display_font_family?: string
+          body_font_family?: string
+          mono_font_family?: string
+          social_links?: Json
           created_at: string
           updated_at: string
         }
@@ -107,6 +127,23 @@ export interface Database {
           og_image_url?: string | null
           og_image_alt?: string | null
           availability_visible?: boolean
+          site_title?: string
+          site_description?: string
+          site_keywords?: string[]
+          site_url?: string
+          author_name?: string
+          author_email?: string
+          author_location?: string
+          favicon_url?: string | null
+          theme_mode?: string
+          accent_color_primary?: string
+          accent_color_secondary?: string
+          bg_base_color?: string
+          surface_color?: string
+          display_font_family?: string
+          body_font_family?: string
+          mono_font_family?: string
+          social_links?: Json
           created_at?: string
           updated_at?: string
         }
@@ -117,6 +154,230 @@ export interface Database {
           og_image_url?: string | null
           og_image_alt?: string | null
           availability_visible?: boolean
+          site_title?: string
+          site_description?: string
+          site_keywords?: string[]
+          site_url?: string
+          author_name?: string
+          author_email?: string
+          author_location?: string
+          favicon_url?: string | null
+          theme_mode?: string
+          accent_color_primary?: string
+          accent_color_secondary?: string
+          bg_base_color?: string
+          surface_color?: string
+          display_font_family?: string
+          body_font_family?: string
+          mono_font_family?: string
+          social_links?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sections: {
+        Row: {
+          id: string
+          key: string
+          type: string
+          order_index: number
+          is_visible: boolean
+          status: 'draft' | 'published'
+          published_at: string | null
+          content: Json
+          style: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          type: string
+          order_index?: number
+          is_visible?: boolean
+          status?: 'draft' | 'published'
+          published_at?: string | null
+          content?: Json
+          style?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          type?: string
+          order_index?: number
+          is_visible?: boolean
+          status?: 'draft' | 'published'
+          published_at?: string | null
+          content?: Json
+          style?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      section_versions: {
+        Row: {
+          id: string
+          section_id: string
+          content: Json
+          style: Json
+          status: string
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          section_id: string
+          content: Json
+          style: Json
+          status: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          section_id?: string
+          content?: Json
+          style?: Json
+          status?: string
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      nav_items: {
+        Row: {
+          id: string
+          label: string
+          href: string
+          order_index: number
+          is_visible: boolean
+          is_cta: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          href: string
+          order_index?: number
+          is_visible?: boolean
+          is_cta?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          href?: string
+          order_index?: number
+          is_visible?: boolean
+          is_cta?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      media: {
+        Row: {
+          id: string
+          bucket_path: string
+          public_url: string
+          type: 'image' | 'video'
+          alt_text: string | null
+          mime: string | null
+          size: number | null
+          width: number | null
+          height: number | null
+          uploaded_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          bucket_path: string
+          public_url: string
+          type: 'image' | 'video'
+          alt_text?: string | null
+          mime?: string | null
+          size?: number | null
+          width?: number | null
+          height?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          bucket_path?: string
+          public_url?: string
+          type?: 'image' | 'video'
+          alt_text?: string | null
+          mime?: string | null
+          size?: number | null
+          width?: number | null
+          height?: number | null
+          uploaded_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      section_media: {
+        Row: {
+          id: string
+          section_id: string
+          media_id: string
+          order_index: number
+          role: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          section_id: string
+          media_id: string
+          order_index?: number
+          role?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          section_id?: string
+          media_id?: string
+          order_index?: number
+          role?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      fonts: {
+        Row: {
+          id: string
+          name: string
+          source: 'google' | 'uploaded'
+          file_path: string | null
+          weights: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          source: 'google' | 'uploaded'
+          file_path?: string | null
+          weights?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          source?: 'google' | 'uploaded'
+          file_path?: string | null
+          weights?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -141,6 +402,7 @@ export interface Database {
           cover_video_url?: string | null
           cover_video_poster_url?: string | null
           gallery: Json
+          images?: Json
           metrics: Json
           featured: boolean
           sort_order: number
@@ -166,6 +428,7 @@ export interface Database {
           cover_video_url?: string | null
           cover_video_poster_url?: string | null
           gallery?: Json
+          images?: Json
           metrics?: Json
           featured?: boolean
           sort_order?: number
@@ -191,6 +454,7 @@ export interface Database {
           cover_video_url?: string | null
           cover_video_poster_url?: string | null
           gallery?: Json
+          images?: Json
           metrics?: Json
           featured?: boolean
           sort_order?: number
@@ -216,6 +480,7 @@ export interface Database {
           image_url?: string | null
           image_alt?: string | null
           gallery?: Json
+          images?: Json
           sort_order: number
           is_published: boolean
           created_at: string
@@ -236,6 +501,7 @@ export interface Database {
           image_url?: string | null
           image_alt?: string | null
           gallery?: Json
+          images?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string
@@ -256,6 +522,7 @@ export interface Database {
           image_url?: string | null
           image_alt?: string | null
           gallery?: Json
+          images?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string
@@ -277,6 +544,7 @@ export interface Database {
           image_url?: string | null
           image_alt?: string | null
           gallery?: Json
+          images?: Json
           sort_order: number
           is_published: boolean
           created_at: string
@@ -323,6 +591,8 @@ export interface Database {
           credential_url: string | null
           image_url: string | null
           image_alt: string | null
+          gallery?: Json
+          images?: Json
           sort_order: number
           is_published: boolean
           created_at: string
@@ -336,6 +606,8 @@ export interface Database {
           credential_url?: string | null
           image_url?: string | null
           image_alt?: string | null
+          gallery?: Json
+          images?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string
@@ -349,6 +621,8 @@ export interface Database {
           credential_url?: string | null
           image_url?: string | null
           image_alt?: string | null
+          gallery?: Json
+          images?: Json
           sort_order?: number
           is_published?: boolean
           created_at?: string
@@ -452,3 +726,24 @@ export type EducationRow = Database['public']['Tables']['education']['Row']
 export type CertificationRow = Database['public']['Tables']['certifications']['Row']
 export type SkillRow = Database['public']['Tables']['skills']['Row']
 export type SocialLinkRow = Database['public']['Tables']['social_links']['Row']
+
+export type SectionRow = Database['public']['Tables']['sections']['Row']
+export type SectionInsert = Database['public']['Tables']['sections']['Insert']
+export type SectionUpdate = Database['public']['Tables']['sections']['Update']
+
+export type SectionVersionRow = Database['public']['Tables']['section_versions']['Row']
+
+export type NavItemRow = Database['public']['Tables']['nav_items']['Row']
+export type NavItemInsert = Database['public']['Tables']['nav_items']['Insert']
+export type NavItemUpdate = Database['public']['Tables']['nav_items']['Update']
+
+export type MediaRow = Database['public']['Tables']['media']['Row']
+export type MediaInsert = Database['public']['Tables']['media']['Insert']
+export type MediaUpdate = Database['public']['Tables']['media']['Update']
+
+export type SectionMediaRow = Database['public']['Tables']['section_media']['Row']
+export type SectionMediaInsert = Database['public']['Tables']['section_media']['Insert']
+
+export type FontRow = Database['public']['Tables']['fonts']['Row']
+export type FontInsert = Database['public']['Tables']['fonts']['Insert']
+export type FontUpdate = Database['public']['Tables']['fonts']['Update']

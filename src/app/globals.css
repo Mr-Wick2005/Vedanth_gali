@@ -9,15 +9,28 @@
   --color-surface-glass: var(--color-surface-glass);
   --color-border: var(--color-border);
   --color-border-hover: var(--color-border-hover);
+  --color-border-accent: var(--color-border-accent);
   --color-hairline: var(--color-hairline);
   --color-hairline-accent: var(--color-hairline-accent);
   --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
   --color-text-lilac: var(--color-text-lilac);
   --color-muted: var(--color-muted);
   --color-text-dim: var(--color-text-dim);
-  --color-accent: var(--color-accent);
-  --color-violet-glow: var(--color-violet-glow);
+
+  /* Primary Electric Blue */
+  --color-accent: var(--color-blue-primary);
+  --color-blue-primary: var(--color-blue-primary);
+  --color-blue-electric: var(--color-blue-electric);
+  --color-blue-light: var(--color-blue-light);
   --color-cyan-glow: var(--color-cyan-glow);
+
+  /* Warm Red -> Pink -> Magenta Accents */
+  --color-red-accent: var(--color-red-accent);
+  --color-pink-hot: var(--color-pink-hot);
+  --color-magenta-glow: var(--color-magenta-glow);
+  --color-violet-glow: var(--color-violet-glow);
+
   --color-accent-subtle: var(--color-accent-subtle);
   --color-status-success: var(--color-status-success);
   --color-status-warning: var(--color-status-warning);
@@ -47,7 +60,7 @@ html {
 
 body {
   background-color: var(--color-background);
-  color: var(--color-text-lilac);
+  color: var(--color-text-secondary);
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   line-height: 1.65;
@@ -61,27 +74,76 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-accent);
+  background-color: #2563eb;
   color: #ffffff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-violet-glow);
+  outline: 2px solid var(--color-blue-electric);
   outline-offset: 2px;
+}
+
+/* Reusable Gradient Utilities */
+.text-gradient-accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-electric {
+  background: var(--gradient-electric);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-blue {
+  box-shadow: var(--shadow-glow-blue);
+}
+
+.glow-magenta {
+  box-shadow: var(--shadow-glow-magenta);
 }
 
 /* Outlined / Stroke Typography */
 .text-stroke {
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.4);
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
   color: transparent;
 }
 
-.text-stroke-violet {
-  -webkit-text-stroke: 1.5px rgba(167, 139, 250, 0.6);
+.text-stroke-blue {
+  -webkit-text-stroke: 1.5px rgba(96, 165, 250, 0.55);
   color: transparent;
 }
 
-/* View Transitions (Shared Element Morphing & Persistent Isolation) */
+.text-stroke-pink {
+  -webkit-text-stroke: 1.5px rgba(236, 72, 153, 0.5);
+  color: transparent;
+}
+
+/* Terminal & Card Styling */
+.terminal-window {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0c14;
+  border-radius: 0.875rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(16, 19, 29, 0.6);
+}
+
+/* View Transitions */
 @view-transition {
   navigation: auto;
 }

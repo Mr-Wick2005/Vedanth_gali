@@ -5,7 +5,7 @@ import { SignOutButton } from '@/components/admin/SignOutButton'
 import { ToastProvider } from '@/components/admin/ToastContext'
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | Vedanth Gali',
+  title: 'Admin Dashboard | Site Manager',
   robots: {
     index: false,
     follow: false,
@@ -55,14 +55,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const navLinks = [
     { label: 'Overview', href: '/admin' },
-    { label: 'Profile', href: '/admin/profile' },
+    { label: 'Sections', href: '/admin/sections' },
+    { label: 'Navbar', href: '/admin/navigation' },
+    { label: 'Media', href: '/admin/media' },
+    { label: 'Typography', href: '/admin/typography' },
+    { label: 'Settings', href: '/admin/settings' },
     { label: 'Projects', href: '/admin/projects' },
     { label: 'Experience', href: '/admin/experience' },
     { label: 'Education', href: '/admin/education' },
     { label: 'Certifications', href: '/admin/certifications' },
     { label: 'Skills', href: '/admin/skills' },
     { label: 'Socials', href: '/admin/socials' },
-    { label: 'Settings', href: '/admin/settings' },
   ]
 
   return (
@@ -70,7 +73,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="bg-background text-text min-h-screen">
         {/* Top Header */}
         <header className="border-border bg-surface/50 border-b backdrop-blur-sm">
-          <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-3.5">
+          <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3.5">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
@@ -80,7 +83,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </Link>
               <span className="text-border font-mono text-xs">/</span>
               <span className="font-display text-text text-sm font-bold tracking-tight">
-                Portfolio Admin
+                Dashboard
               </span>
             </div>
 
@@ -94,7 +97,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
           {/* Subnav */}
           <div className="border-border/40 bg-surface/30 border-t">
-            <div className="mx-auto flex max-w-[1200px] gap-1 overflow-x-auto px-6 py-2">
+            <div className="mx-auto flex max-w-[1400px] gap-1 overflow-x-auto px-6 py-2">
               {navLinks.map((item) => (
                 <Link
                   key={item.href}
@@ -109,7 +112,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </header>
 
         {/* Main Content Area */}
-        <main className="mx-auto max-w-[1200px] px-6 py-8">{children}</main>
+        <main className="mx-auto max-w-[1400px] px-6 py-8">{children}</main>
       </div>
     </ToastProvider>
   )

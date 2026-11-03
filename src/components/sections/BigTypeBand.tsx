@@ -9,18 +9,33 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
-const PHRASE = 'OPEN TO WORK • FRONTEND & FULL-STACK • MUMBAI • 2027 • '
+interface BigTypeBandProps {
+  content?: Record<string, unknown> | null
+  style?: Record<string, unknown> | null
+}
 
-export function BigTypeBand() {
+const DEFAULT_PHRASE = 'OPEN TO WORK • FRONTEND & FULL-STACK • MUMBAI • 2027 • '
+
+export function BigTypeBand({ content }: BigTypeBandProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const shouldReduceMotion = useReducedMotion()
+
+  const phrase =
+    typeof content?.phrase === 'string' && content.phrase.trim()
+      ? content.phrase
+      : DEFAULT_PHRASE
+
+  const speedMultiplier =
+    typeof content?.speed === 'number' && !isNaN(content.speed)
+      ? content.speed
+      : 1.0
 
   useEffect(() => {
     if (shouldReduceMotion || !trackRef.current || !containerRef.current) return
 
     let currentX = 0
-    let targetSpeed = 1
+    let targetSpeed = 1 * speedMultiplier
     let scrollDirection = 1
 
     const ctx = gsap.context(() => {
@@ -33,7 +48,7 @@ export function BigTypeBand() {
           scrollDirection = self.direction === -1 ? -1 : 1
           // Scale speed based on velocity
           const velocity = Math.abs(self.getVelocity() / 300)
-          targetSpeed = 1 + velocity
+          targetSpeed = (1 + velocity) * speedMultiplier
         },
       })
 
@@ -41,7 +56,7 @@ export function BigTypeBand() {
       const update = () => {
         currentX += 0.8 * targetSpeed * scrollDirection
         // Smoothly decay velocity multiplier
-        targetSpeed += (1 - targetSpeed) * 0.05
+        targetSpeed += (speedMultiplier - targetSpeed) * 0.05
 
         if (trackRef.current) {
           // Wrap modulo 50%
@@ -59,7 +74,7 @@ export function BigTypeBand() {
     }, containerRef)
 
     return () => ctx.revert()
-  }, [shouldReduceMotion])
+  }, [shouldReduceMotion, speedMultiplier])
 
   return (
     <section
@@ -72,12 +87,12 @@ export function BigTypeBand() {
         style={{ width: 'fit-content' }}
       >
         <span className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-white/90">
-          {PHRASE}
-          <span className="text-stroke-violet text-transparent">{PHRASE}</span>
+          {phrase}
+          <span className="text-stroke-blue text-transparent">{phrase}</span>
         </span>
         <span className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight text-white/90">
-          {PHRASE}
-          <span className="text-stroke-violet text-transparent">{PHRASE}</span>
+          {phrase}
+          <span className="text-stroke-blue text-transparent">{phrase}</span>
         </span>
       </div>
     </section>

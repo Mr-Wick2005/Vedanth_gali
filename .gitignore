@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+docs/screenshots/qa-rebuild/
 
 # next.js
 /.next/
@@ -45,5 +46,3 @@ next-env.d.ts
 .agent/
 .agents/skills/
 skills-lock.json
-
-.vercel

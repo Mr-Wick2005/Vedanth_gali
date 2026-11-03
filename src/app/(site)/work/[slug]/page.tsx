@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { getProjectBySlug, getProjects } from '@/lib/content'
 import { Icon } from '@/components/ui/icon'
 import { CountUp } from '@/components/motion/CountUp'
@@ -10,6 +9,8 @@ import { ImageReveal } from '@/components/motion/ImageReveal'
 import { Magnetic } from '@/components/motion/Magnetic'
 import { ProjectArchitectureDiagram } from '@/components/sections/ProjectArchitectureDiagram'
 import { ProjectEngineeringDetails } from '@/components/sections/ProjectEngineeringDetails'
+import { ImageSlideshow } from '@/components/ui/ImageSlideshow'
+import { extractGalleryImages } from '@/lib/images'
 
 interface WorkPageProps {
   params: Promise<{ slug: string }>
@@ -172,28 +173,28 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
           </div>
         </header>
 
-        {/* Hero Media Preview (Browser Frame) */}
+        {/* Hero Media Preview (Browser Frame & Multi-Image Slideshow) */}
         <section className="mt-16">
           <ImageReveal direction="bottom" duration={0.8}>
-            <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#0f0f22] shadow-[0_30px_80px_rgba(0,0,0,0.9)]">
+            <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-[#0a0c14] shadow-[0_30px_80px_rgba(0,0,0,0.9)]">
               {/* Window Bar */}
-              <div className="flex items-center justify-between border-b border-white/10 bg-[#14142d] px-5 py-3.5">
+              <div className="flex items-center justify-between border-b border-white/10 bg-[#0e111b] px-5 py-3.5">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded-full bg-rose-500/80" />
                   <span className="h-3 w-3 rounded-full bg-amber-500/80" />
                   <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-black/60 px-5 py-1 font-mono text-xs text-muted max-w-md truncate">
-                  <Icon name="globe" size={13} className="text-violet-400 shrink-0" />
+                <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-black/60 px-5 py-1 font-mono text-xs text-slate-400 max-w-md truncate">
+                  <Icon name="globe" size={13} className="text-blue-400 shrink-0" />
                   <span className="truncate">{project.live_url || `https://vedanthgali.dev/work/${project.slug}`}</span>
                 </div>
                 <div className="w-12" />
               </div>
 
-              {/* Main Media Preview (Video or Image) */}
+              {/* Main Media Preview (Video or ImageSlideshow) */}
               <div
                 style={{ viewTransitionName: `project-cover-${project.slug}` }}
-                className="relative aspect-[16/9] w-full bg-black"
+                className="relative w-full bg-black"
               >
                 {project.cover_video_url ? (
                   <video
@@ -204,16 +205,14 @@ export default async function ProjectCaseStudyPage({ params }: WorkPageProps) {
                     loop
                     muted
                     playsInline
-                    className="h-full w-full object-cover object-top"
+                    className="h-full w-full aspect-[16/9] object-cover object-top"
                   />
                 ) : (
-                  <Image
-                    src={coverImage}
-                    alt={project.cover_image_alt || project.title}
-                    fill
-                    priority
-                    sizes="(max-width: 1440px) 100vw, 1320px"
-                    className="object-cover object-top"
+                  <ImageSlideshow
+                    images={extractGalleryImages(project, coverImage)}
+                    aspectRatio="video"
+                    altFallback={project.title}
+                    showThumbnails={true}
                   />
                 )}
               </div>
