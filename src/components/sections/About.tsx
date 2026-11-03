@@ -49,17 +49,8 @@ const DEFAULT_DISCIPLINES: DisciplineItem[] = [
   },
 ]
 
-export function About({ profile, education, content }: AboutProps) {
+export function About({ profile, content }: AboutProps) {
   const [avatarError, setAvatarError] = useState(false)
-
-  const primaryEdu = education[0] || {
-    degree: 'Bachelor of Engineering',
-    field: 'Computer Engineering',
-    institution: 'Mumbai University',
-    start_year: 2023,
-    end_year: 2027,
-    status: 'Final Year',
-  }
 
   const kicker =
     typeof content?.kicker === 'string' && content.kicker.trim()
@@ -97,45 +88,15 @@ export function About({ profile, education, content }: AboutProps) {
       ? (content.disciplines as typeof DEFAULT_DISCIPLINES)
       : DEFAULT_DISCIPLINES
 
-  const dossierBadge =
-    typeof content?.dossier_badge === 'string' && content.dossier_badge.trim()
-      ? content.dossier_badge
-      : primaryEdu.status || 'FINAL YEAR'
-
-  const dossierTitle =
-    typeof content?.dossier_title === 'string' && content.dossier_title.trim()
-      ? content.dossier_title
-      : 'ENGINEER & DIRECTOR'
-
   const avatarSrc =
     typeof content?.dossier_avatar === 'string' && content.dossier_avatar.trim()
       ? content.dossier_avatar
-      : profile?.avatar_url || '/images/vedanth-cutout.svg'
+      : profile?.avatar_url || '/images/vedanth-cutout.webp'
 
   const dossierName =
     typeof content?.dossier_name === 'string' && content.dossier_name.trim()
       ? content.dossier_name
       : profile?.name || 'VEDANTH GALI'
-
-  const dossierRole =
-    typeof content?.dossier_role === 'string' && content.dossier_role.trim()
-      ? content.dossier_role
-      : 'Frontend & Full-Stack Dev'
-
-  const dossierDegree =
-    typeof content?.dossier_degree === 'string' && content.dossier_degree.trim()
-      ? content.dossier_degree
-      : 'B.E. Comp Eng'
-
-  const dossierTimeline =
-    typeof content?.dossier_timeline === 'string' && content.dossier_timeline.trim()
-      ? content.dossier_timeline
-      : '2023 – 2027'
-
-  const dossierInstitution =
-    typeof content?.dossier_institution === 'string' && content.dossier_institution.trim()
-      ? content.dossier_institution
-      : 'Mumbai University, IN'
 
   return (
     <section id="about" className="relative overflow-hidden w-full max-w-full border-t border-white/[0.08] bg-[#05060a] py-16 sm:py-24">
@@ -221,91 +182,32 @@ export function About({ profile, education, content }: AboutProps) {
             </div>
           </div>
 
-          {/* Right Column: Tactile 3D Dossier Identity Card (5 cols - perfectly aligned with left column) */}
+          {/* Right Column: Full Portrait Card (aligned symmetrically with left column) */}
           <div className="flex justify-center lg:col-span-5 lg:justify-end h-full">
-            <Tilt maxAngle={6} perspective={1000} className="w-full max-w-[380px] xl:max-w-[420px] h-full flex flex-col">
-              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-[#10131d] via-[#0a0c14] to-[#05060a] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_25px_rgba(37,99,235,0.15)] h-full flex flex-col justify-between">
-
-                {/* Dossier Header */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-display text-base font-extrabold tracking-tight text-white">
-                      VG<span className="text-blue-400">.</span>
-                    </span>
-                    <span className="font-mono text-[10px] tracking-wider text-slate-400 uppercase">
-                      {dossierTitle}
-                    </span>
-                  </div>
-
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    {dossierBadge}
-                  </span>
-                </div>
-
-                {/* Authentic Portrait Slot - Balanced Aspect Ratio */}
-                <div className="relative my-3 aspect-[4/3] w-full overflow-hidden rounded-xl border border-blue-500/20 bg-black flex items-center justify-center">
+            <Tilt maxAngle={6} perspective={1000} className="w-full max-w-[420px] xl:max-w-[460px] h-full flex flex-col">
+              <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-[#10131d] via-[#0a0c14] to-[#05060a] p-3 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_25px_rgba(37,99,235,0.15)] h-full min-h-[460px] sm:min-h-[520px] lg:min-h-0 flex-1 flex flex-col items-center justify-center">
+                <div className="relative h-full w-full min-h-[440px] sm:min-h-[500px] lg:min-h-0 flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/40 flex items-center justify-center">
                   {!avatarError ? (
                     <Image
                       src={avatarSrc}
                       alt={dossierName}
                       fill
                       priority
-                      sizes="(max-width: 640px) 100vw, 420px"
-                      className="object-cover object-top transition-transform duration-700 ease-out hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 460px"
+                      className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                       onError={() => setAvatarError(true)}
                     />
                   ) : (
-                    <div className="relative flex h-full w-full flex-col items-center justify-center p-4 text-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-600/10 text-blue-300">
-                        <Icon name="code" size={28} />
+                    <div className="relative flex h-full w-full flex-col items-center justify-center p-6 text-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-600/10 text-blue-300">
+                        <Icon name="code" size={32} />
                       </div>
-                      <span className="mt-2 font-display text-xs font-bold text-white uppercase">
+                      <span className="mt-3 font-display text-sm font-bold text-white uppercase">
                         {dossierName}
                       </span>
                     </div>
                   )}
-
-                  {/* Corner Verified Shield Badge */}
-                  <div className="pointer-events-none absolute right-2.5 bottom-2.5 flex h-6 w-6 items-center justify-center rounded-full border border-blue-400/40 bg-blue-600/40 backdrop-blur-sm shadow-[0_0_12px_rgba(37,99,235,0.4)]">
-                    <Icon name="shield-check" size={13} className="text-blue-300" />
-                  </div>
                 </div>
-
-                {/* Dossier Information Grid */}
-                <div className="space-y-2 font-mono text-xs">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="block text-[9px] uppercase tracking-wider text-slate-500">NAME &amp; TITLE</span>
-                      <span className="font-display text-xs sm:text-sm font-bold tracking-tight text-white uppercase block">
-                        {dossierName}
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-blue-400 font-mono">
-                      {dossierRole}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-2">
-                    <div>
-                      <span className="block text-[9px] uppercase tracking-wider text-slate-500">DEGREE</span>
-                      <span className="text-[11px] text-white font-medium block truncate">{dossierDegree}</span>
-                    </div>
-                    <div>
-                      <span className="block text-[9px] uppercase tracking-wider text-slate-500">TIMELINE</span>
-                      <span className="text-[11px] text-slate-300 block">{dossierTimeline}</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/10 pt-2 flex items-center justify-between">
-                    <div>
-                      <span className="block text-[9px] uppercase tracking-wider text-slate-500">INSTITUTION</span>
-                      <span className="text-[11px] text-slate-300 block truncate">{dossierInstitution}</span>
-                    </div>
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-                  </div>
-                </div>
-
               </div>
             </Tilt>
           </div>

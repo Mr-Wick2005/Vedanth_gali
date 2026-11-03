@@ -537,14 +537,8 @@ VALUES (
         'description', 'Conference Coordinator & Hackathon Club Head. Mentoring student engineers, shaping technical challenges, and executing events.'
       )
     ),
-    'dossier_badge', 'FINAL YEAR',
-    'dossier_title', 'VG. ENGINEER & DIRECTOR',
     'dossier_avatar', '/images/vedanth-cutout.svg',
-    'dossier_name', 'VEDANTH GALI',
-    'dossier_role', 'Frontend & Full-Stack Dev',
-    'dossier_degree', 'B.E. Comp Eng',
-    'dossier_timeline', '2023 – 2027',
-    'dossier_institution', 'Mumbai University, IN'
+    'dossier_name', 'VEDANTH GALI'
   ),
   jsonb_build_object('layout', 'symmetrical-split', 'theme', 'dark')
 )

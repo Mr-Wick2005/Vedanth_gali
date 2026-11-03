@@ -449,80 +449,18 @@ export function SectionEditor({ section, versions }: SectionEditorProps) {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Name</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_name)}
-                    onChange={(e) => updateContentField('dossier_name', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Role</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_role)}
-                    onChange={(e) => updateContentField('dossier_role', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Degree</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_degree)}
-                    onChange={(e) => updateContentField('dossier_degree', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Timeline</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_timeline)}
-                    onChange={(e) => updateContentField('dossier_timeline', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Institution</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_institution)}
-                    onChange={(e) => updateContentField('dossier_institution', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">Dossier Header Status Badge</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_badge, 'FINAL YEAR')}
-                    onChange={(e) => updateContentField('dossier_badge', e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-xs text-slate-400 mb-1">About Dossier Portrait Image URL</label>
-                  <input
-                    type="text"
-                    value={getStr(content.dossier_avatar)}
-                    onChange={(e) => updateContentField('dossier_avatar', e.target.value)}
-                    placeholder="/images/vedanth-cutout.svg or uploaded storage image"
-                    className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
-                  />
-                  <span className="block mt-1 font-mono text-[10px] text-slate-500">
-                    This image only renders inside the About section 3D identity card. It does not affect the Hero video.
-                  </span>
-                </div>
+              <div className="border-t border-white/[0.08] pt-4">
+                <label className="block font-mono text-xs text-slate-300 font-semibold mb-1">About Section Portrait Image URL</label>
+                <input
+                  type="text"
+                  value={getStr(content.dossier_avatar)}
+                  onChange={(e) => updateContentField('dossier_avatar', e.target.value)}
+                  placeholder="/images/vedanth-cutout.svg or uploaded storage image"
+                  className="w-full rounded-lg border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-white focus:border-blue-500 focus:outline-none"
+                />
+                <span className="block mt-1.5 font-mono text-[11px] text-slate-400">
+                  This image exclusively renders inside the full portrait card on the right side of the About section. It does not affect the Hero section video.
+                </span>
               </div>
             </div>
           )}
